@@ -1,0 +1,10 @@
+test_rescale <- function() {
+	replicate(10, function() assert_equal(c(0,1), range(rescale(rnorm(100))))
+	replicate(10, function() assert_equal(c(0,1), range(rescale(rpois(100,100))))
+}
+
+test_brewer_type <- function() {
+	assert_equal("qualitative", brewer_type(factor(1:10)))
+	assert_equal("sequential", brewer_type(ordered(1:10)))
+	assert_equal("diverging", brewer_type(ordered(-5:4), levels=-5:4))	
+}

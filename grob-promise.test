@@ -1,0 +1,82 @@
+p <- plot_new(mtcars, vs ~ am, aesthetics=list(x=hp, y=drat))
+p <- plot_add(p, mtcars, "point", list(x=hp, y=hp), potato=x)
+p$scales <- scales(position_numeric("x"), position_numeric("y"))
+
+f <- preprocess_all(g, vs ~ am)[[1,1]]
+make_grobs(g,f)
+make_all_grobs(g, vs ~ am)[[1]]
+
+
+s1 <- scales(scale_size(), scale_linear("x"), scale_linear("y"), scale_colour_gradient())  
+s2 <- scales(position_projection()) # scale_colour_rgb(), 
+
+df1 <- data.frame(x=1:10, y=21:30, size=1:10, a= factor(1:10))
+df2 <- data.frame(x=1:10, y=21:30, size=1:10, colour= 1:10)
+
+update(s1) <- df1
+map(s1, df1)
+
+map(s2, df1)
+
+update(s1) <- df2
+map(s1, df2)
+
+update(s2) <- df2
+
+
+# Demo code. 
+# 
+# Want to show off:
+# 
+#  * map projections
+movies <- read.csv("~/documents/movies/movies.csv")
+movies$rrating <- round(movies$rating)
+movies <- subset(movies, !is.na(Documentary))
+
+png(filename = "~/documents/lattice/publications/functional-gg/plot-%02d.png")
+p <- plot_new(movies, aesthetics=list(x=year, y=rating))
+p$scales <- scales(position_numeric("x"), position_numeric("y"))
+
+plot_add(p, map="point")
+plot_add(map="quantiles", colour="red")
+
+p <- plot_new(movies, Documentary ~ . , aesthetics=list(x=year, y=rating))
+p$scales <- scales(position_numeric("x"), position_numeric("y"), scale_colour_gradient())
+plot_add(p, map="point")
+(p2 <- plot_add(p, aesthetics=list(colour = rating), map="point"))
+plot_add(map="quantiles", colour="yellow")
+
+model <- lm(rating ~ year * Documentary, movies)
+df <- data.frame(year = rep(seq(1900, 2005, 5), each=2), Documentary=c(0,1))
+df$rating <- predict(model, df)
+plot_add(p2, data=df, map="path")
+
+df <- data.frame(year=rnorm(100)*10+2000, rating=rnorm(100)*5)
+plot_add(p2, df)
+dev.off()
+
+p2 <- plot_new(mtcars, vs ~ am, aesthetics=list(x=hp, y=drat))
+p2$scales <- scales(position_numeric("x"), position_numeric("y"))
+
+(plot_add(p, mtcars, "point", list(colour=am)))
+
+plot_add(p2, mtcars, "points")
+plot_add(p2, mtcars, "histogram")
+
+p3 <- plot_add(p, mtcars, "point")
+plot_add(p3, mtcars, "quantiles", df=3, quantiles=c(0.25,0.5,0.75))
+(plot_add(p, mtcars, "point", list(colour=disp, size=wt)))
+
+
+nzdf <- data.frame(nz[c("x","y")])
+nz <- map('nz', plot=F)
+
+p <- plot_new(nzdf, aesthetics=list())
+p$scales <- scales(position_numeric("x"), position_numeric("y"))
+plot_add(p, map="point", aes=list(size=0.5))
+
+p$scales <- scales(position_map())
+plot_add(p, map="point")
+
+p$scales <- scales(position_map("lagrange"))
+plot_add(p, map="point")
