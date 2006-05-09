@@ -6,7 +6,7 @@
 \description{
 Add a line to the plot
 }
-\usage{ggline(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggline(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -17,12 +17,12 @@ Add a line to the plot
 \details{Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
-\item id: identifier variable used to break up into multiple paths
-\item size: size of the line, in mm (see \code{\link{scsize}})
-\item colour: line colour (see \code{\link{sccolour}})
-\item line\_type: line style/type (see \code{\link{sclinetype}})
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
+\item \code{id}:identifier variable used to break up into multiple paths
+\item \code{size}:size of the line, in mm (see \code{\link{scsize}})
+\item \code{colour}:line colour (see \code{\link{sccolour}})
+\item \code{linetype}:line style/type (see \code{\link{sclinetype}})
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -42,7 +42,7 @@ nums <- tapply(df$length, df$year, length)
 data.frame(rating=round(df$rating[1]), year = as.numeric(names(nums)), number=as.vector(nums))
 }))
 p <- ggplot(mry, aesthetics = list(x=year, y=number, id=rating))
-ggpath(p)
+ggline(p)
 ggpath(p, list(size=rating))
 ggpath(p, list(colour=rating))}
 \keyword{hplot}

@@ -5,14 +5,21 @@
 # scale to a plot, use \code{\link{add_scale}}.
 # 
 # @arguments plot object, if not specified will use current plot
-# @arguments character vector of needed scales to add, see \code{\link{scales}} for possible options
+# @arguments list of unevaluated aesthetics
 # @keyword hplot 
 # @keyword internal
-add_defaults <- function(p = .PLOT, new) {
-	scales <- compact(lapply(paste("scale", new, sep="_"), match.fun.null))
-	for(s in scales) {
-		p <- add_scale(p, s())
+add_defaults <- function(p = .PLOT, aesthetics) {
+	new_aesthetics <- setdiff(names(aesthetics), input(p$scales))
+	
+	values <- aesthetics[new_aesthetics]
+	
+	for(i in 1:length(new_aesthetics)) {
+		s <- match.fun.null(paste("scale", new_aesthetics[i], sep="_"))
+		if (is.null(s)) next
+		
+		p <- add_scale(p, s(name=deparse(values[i][[1]])))
 	}
+
 	p
 }
 
@@ -62,24 +69,22 @@ plot_add_grobs <- function(plot, grob_matrix) {
 # @arguments viewports
 # @arguments panels
 # @arguments guides
-# @arguments should the plot be wrapped up inside the pretty accountrements (labels, legends, etc)
+# @arguments should the plot be wrapped up inside the pretty accoutrements (labels, legends, etc)
 # @keyword hplot
 # @keyword internal
 ggplot_plot <- function(plot, viewport=viewport_default(plot, guides, plot$scales), panels=panels_default(plot, grobs), guides=guides_basic(plot, plot$scales), pretty=TRUE) {
 	if (length(plot$grobs) == 0) stop("No grobs to plot")
 	
-	new_aesthetics <- setdiff(names(plot$defaults), input(plot$scales))
-	plot <- add_defaults(plot, new_aesthetics)
+	plot <- add_defaults(plot, plot$defaults)
 	pre <- lapply(plot$grobs, preprocess_all, plot=plot)
 	plot <- add_position(add_position(plot, pre, "x"), pre, "y")
 	
 	update(plot$scales) <- pre
-
+	
 	aes <- map_all(plot$scales, pre)
 	grobs <- mapply(make_all_grobs, plot$grobs, aes, SIMPLIFY=FALSE)
 	
 	plotgrob <- gTree(children=do.call(gList, c(unlist(guides, recursive=FALSE), panels)), childrenvp = viewport)
 	if (!pretty) return(plotgrob)
-	prettyplot(plotgrob, plot$title, plot$xlabel, plot$ylabel, legends(plot$scales))
+	prettyplot(plot, plotgrob)
 }
-

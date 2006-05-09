@@ -6,13 +6,13 @@
 \description{
 Build a plot with all the usual bits and pieces.
 }
-\usage{prettyplot(plot, title, xlabel, ylabel, legend=NULL)}
+\usage{prettyplot(plot, plotgrob)}
 \arguments{
 \item{plot}{plot}
-\item{title}{title (character vector)}
-\item{xlabel}{x axis label (character vector)}
-\item{ylabel}{y axis label (character vector)}
-\item{legend}{legend grobs (list of grobs)}
+\item{plotgrob}{title (character vector)}
+\item{}{x axis label (character vector)}
+\item{}{y axis label (character vector)}
+\item{}{legend grobs (list of grobs)}
 }
 
 \details{As well as the plotting area, a plot need:

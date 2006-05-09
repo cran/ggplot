@@ -6,7 +6,7 @@
 \description{
 Create \code{\link{grid.layout}} for plot
 }
-\usage{plot_layout(gm, rows, cols, row.labels, col.labels, axes_h, axes_v )}
+\usage{plot_layout(gm, rows, cols, row.labels, col.labels, axes_h, axes_v, aspect_ratio)}
 \arguments{
 \item{gm}{grob matrix}
 \item{rows}{total number of rows}
@@ -15,6 +15,7 @@ Create \code{\link{grid.layout}} for plot
 \item{col.labels}{data frame of column labels}
 \item{axes_h}{matrix of horizontal axis grobs}
 \item{axes_v}{matrix of vertical axis grobs}
+\item{aspect_ratio}{aspect ratio of cells (defaults to not preserved)}
 }
 
 \details{}

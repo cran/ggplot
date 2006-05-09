@@ -34,26 +34,19 @@
 #X ggline(p)
 #X ggline(p, aes=list(colour=mpg)) 
 ggpcp <- function(data, vars=names(data), scale="range", ...) {
-  force(vars)
-	scale.range <- function(x) (x - min(x))/diff(range(x))
-	scale.var <- function(x) scale(as.numeric(x))
+  force(vars)	
+	scaled <- rescaler(data[, vars], type=scale)
+	data <- cbind(scaled, data[, setdiff(names(data), vars), drop=FALSE])
 	
-	scaled <- switch(scale, 
-		I = data[, vars],
-		var = do.call(data.frame, lapply(data[, vars], scale.var)),
-		range = do.call(data.frame, lapply(data[, vars], scale.range))
-	)
-  
-  data <- cbind(scaled, data[, setdiff(names(data), vars), drop=FALSE])
-  
-	data$ROWID <- rownames(data)
+	data$ROWID <- 1:nrow(data)
 	molten <- melt(data, m=vars)
-	
+
 	p <- ggplot(molten, aesthetics=list(x=variable, y=value, id=ROWID), ...)
 	pscategorical(p, "x")
 }
 
-# Create a fluctuation diagram.
+# Fluctuation plot
+# Create a fluctuation plot.
 # 
 # A fluctutation diagram is a graphical representation of a contingency
 # table.  This fuction currently only supports 2D contingency tabless
@@ -64,25 +57,32 @@ ggpcp <- function(data, vars=names(data), scale="range", ...) {
 # 
 # @arguments a table of values, or a data frame with three columns, the last column being frequency
 # @arguments size, or colour to create traditional heatmap
+# @arguments don't display cells smaller than this value
+# @arguments 
 # @keyword hplot
-#X ggfluctuation(table(warpbreaks[,c(2,3)]))
+#X ggfluctuation(table(action=movies$Action, comedy=movies$Comedy))
+#X ggfluctuation(table(action=movies$Action, rating=movies$mpaa))
+#X ggfluctuation(table(action=movies$Action, comedy=movies$Comedy), type="colour")
 #X ggfluctuation(table(warpbreaks[,c(1,3)]))
-ggfluctuation <- function(table, type="size") {
+ggfluctuation <- function(table, type="size", floor=0, ceiling=max(table$freq)) {
   if (is.table(table)) table <- as.data.frame(t(table))
 
   oldnames <- names(table)
   names(table) <- c("x","y", "freq")
 
-  table$x <- as.factor(table$x)
   table <- transform(table,
+		x = as.factor(x),
     y = as.factor(y), 
-    freq = sqrt(freq / max(freq))
+    freq = sqrt(pmin(freq, ceiling) / ceiling),
+		border = ifelse(freq > ceiling, "grey30", "grey50")
   )
+	table <- subset(table, freq * ceiling >= floor)
   
   if (type=="size") {
-    p <- ggrect(ggplot(table, aesthetics = list(x=x, y=y, height=freq, width=freq)), justification=c("left", "bottom"))
-    p <- pscategorical(p, "x", c(0, 1))
-    p <- pscategorical(p, "y", c(0, 1))
+    p <- ggrect(ggplot(table, aesthetics = list(x=x, y=y, height=freq, width=freq, fill=border)), justification=c("centre", "centre"), colour="white")
+    #p <- pscategorical(p, var="x", expand=c(0, 1))
+    #p <- pscategorical(p, "y", expand=c(0, 1))
+		p <- scmanual(p, "fill")
   } else {
     p <- ggtile(ggplot(table, aesthetics = list(x=x, y=y, fill=freq)))
     p <- scfillgradient(p, low="white", high="red")
@@ -91,4 +91,76 @@ ggfluctuation <- function(table, type="size") {
   p$xlabel <- oldnames[1]
   p$ylabel <- oldnames[2]
   p
+}
+
+# Missing values plot
+# Create a plot to illustrate patterns of missing values
+# 
+# The missing values plot is a useful tool to get a rapid
+# overview of the number of missings in a dataset.  It's strength
+# is much more apparent when used with interactive graphics, as you can
+# see in Mondrian (\url{http://rosuda.org/mondrian}) where this plot was
+# copied from.
+# 
+# @arguments data.frame
+# @arguments whether missings should be stacked or dodged, see \code{\link{ggbar}} for more details
+# @arguments whether variable should be ordered by number of missings
+# @arguments whether only variables containing some missing values should be shown
+# @keyword hplot
+# @seealso \code{\link{ggstructure}}, \code{\link{ggorder}}
+#X ggmissing(movies)
+#X ggmissing(movies, order=FALSE, missing.only = FALSE)
+#X pscontinuous(ggmissing(movies, avoid="dodge"), "x", range=c(0, 50)) 
+#X pscontinuous(ggmissing(movies, avoid="dodge"), "y", transform=trans_sqrt)
+#X pscontinuous(ggmissing(movies), "y", transform=trans_log10)
+ggmissing <- function(data, avoid="stack", order=TRUE, missing.only = TRUE) {
+	missings <- mapply(function(var, name) cbind(as.data.frame(table(missing=factor(is.na(var), levels=c(TRUE, FALSE), labels=c("yes", "no")))), variable=name), 
+		data, names(data), SIMPLIFY=FALSE
+	)
+	df <- do.call(rbind, missings)
+	
+	prop <- df[df$missing == "yes", "Freq"] / (df[df$missing == "no", "Freq"] + df[df$missing == "yes", "Freq"])
+	df$prop <- rep(prop, each=2)
+	
+	
+	if (order) {
+		df$variable <- reorder_factor(df$variable, prop)
+	}
+	if (missing.only) {
+		df <- df[df$prop > 0 & df$prop < 1, ]
+		df$variable <- factor(df$variable)
+	}
+	
+	ggbar(ggplot(df, aes=list(y=Freq, x=variable, fill=missing)), avoid=avoid)
+}
+
+# Structure plot
+# A plot which aims to reveal gross structural anomalies in the data
+# 
+# @arguments data set to plot
+# @arguments type of scaling to use.  See \code{\link[reshape]{rescaler}} for options
+# @keyword hplot
+#X ggstructure(mtcars)
+ggstructure <- function(data, scale = "rank") {
+	p <- ggtile(ggpcp(data, scale=scale), aes=list(y=ROWID, fill=value))
+	p$ylabel <- "row number"
+	p <- pscontinuous(p, "y", expand = c(0, 1))
+	scfillgradient(p, low="blue", mid="white", high="red", midpoint=0)
+}
+
+# Order plot
+# A plot to investigate the order in which observations were recorded.
+# 
+# ar
+#  Need ggobi version as well that creates edge between consecutive observations (and adds row number to dataset)
+# 
+# @keyword hplot 
+ggorder <- function(data, scale="rank") {
+	p <- ggpcp(data, scale="rank")
+	p <- defaultaesthetics(p, list(x=ROWID, id=variable))
+	p <- setfacets(p, . ~ variable)
+	p <- ggline(p)
+	p <- pscontinuous(p, "x")
+	p$xlabel <- "row number"
+	p
 }

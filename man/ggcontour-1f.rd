@@ -6,7 +6,7 @@
 \description{
 Create a grob to display contours of a 3D data set.
 }
-\usage{ggcontour(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggcontour(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -17,9 +17,9 @@ Create a grob to display contours of a 3D data set.
 \details{Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
-\item z: z position (required)
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
+\item \code{z}:z position (required)
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -31,13 +31,15 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item nlevels: number of contours to draw
-\item levels: contour positions
+\item \code{nlevels}: number of contours to draw
+\item \code{levels}: contour positions
+\item \code{...}: other aesthetic parameters passed to \code{\link{grob_path}}
 }}
 \seealso{\code{\link{gg2density}}}
 \examples{volcano3d <- data.frame(expand.grid(x = 1:nrow(volcano), y=1:ncol(volcano)), z=as.vector(volcano))
 p <- ggplot(volcano3d, aesthetics=list(x=x,y=y,z=z))
 ggcontour(p)
+ggcontour(p, colour="red")
 ggcontour(p, nlevels=3)
-ggcontour(ggtile(p, list(colour=z)))}
+ggcontour(ggtile(p, list(fill=z)))}
 \keyword{hplot}

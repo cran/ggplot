@@ -6,10 +6,10 @@
 \description{
 Add default scales to a plot.
 }
-\usage{add_defaults(p = .PLOT, new)}
+\usage{add_defaults(p = .PLOT, aesthetics)}
 \arguments{
 \item{p}{plot object, if not specified will use current plot}
-\item{new}{character vector of needed scales to add, see \code{\link{scales}} for possible options}
+\item{aesthetics}{list of unevaluated aesthetics}
 }
 
 \details{You shouldn't need to call this function yourself.  If you want to add a

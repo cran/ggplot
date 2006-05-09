@@ -6,7 +6,7 @@
 \description{
 Perform a 2D kernel density estimatation using \code{\link{kde2d}} and
 }
-\usage{gg2density(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{gg2density(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -19,8 +19,8 @@ Perform a 2D kernel density estimatation using \code{\link{kde2d}} and
 Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or

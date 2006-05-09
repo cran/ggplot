@@ -6,9 +6,10 @@
 \description{
 Create a scale for categorical line types.
 }
-\usage{sclinetype(plot = .PLOT)}
+\usage{sclinetype(plot = .PLOT, name="")}
 \arguments{
 \item{plot}{plot to add scale to}
+\item{name}{}
 }
 
 \details{This scale is automatically added to the plot when you use the linetype

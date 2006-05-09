@@ -6,9 +6,11 @@
 \description{
 Scale colour along a continuous path
 }
-\usage{scale_cont_colour(inputs, to=list())}
+\usage{scale_cont_colour(inputs, name="", variable="colour", to=list())}
 \arguments{
 \item{inputs}{}
+\item{name}{}
+\item{variable}{}
 \item{to}{}
 }
 

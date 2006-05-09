@@ -6,14 +6,15 @@
 \description{
 Add a continuous position scale to the plot
 }
-\usage{pscontinuous(plot = .PLOT, variable="x", transform=trans_none, range=c(NA,NA), expand=c(0.05, 0), breaks=NULL)}
+\usage{pscontinuous(plot = .PLOT, variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0.05, 0), breaks=NULL)}
 \arguments{
 \item{plot}{plot}
 \item{variable}{variable ("x" or "y")}
-\item{transform}{transform function and it's inverse in a vector}
-\item{range}{range, or leave missing to automatically determine}
-\item{expand}{expansion vector (numeric vector, multiplicative and additive expansion)}
-\item{breaks}{set breaks manually}
+\item{name}{transform function and it's inverse in a vector}
+\item{transform}{range, or leave missing to automatically determine}
+\item{range}{expansion vector (numeric vector, multiplicative and additive expansion)}
+\item{expand}{set breaks manually}
+\item{breaks}{}
 }
 \value{modified plot object}
 \details{There are a few useful things that you can do with \code{pscontinuous}:
@@ -30,7 +31,7 @@ and it's inverse (used to create pretty axis labels).  I have created
 a few common ones for you:
 
 \item \code{trans_log10}: log base 10
-\item \code{trans_log10}: log base 2
+\item \code{trans_log2}: log base 2
 \item \code{trans_inverse}: inverse
 \item \code{trans_sqrt}: square root}
 

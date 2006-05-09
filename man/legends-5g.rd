@@ -6,10 +6,10 @@
 \description{
 Create and arrange legends for all scales.
 }
-\usage{legends(scales, vertical = TRUE)}
+\usage{legends(scales, horizontal = FALSE)}
 \arguments{
 \item{scales}{scales object}
-\item{vertical}{direction of scales, vertical by default}
+\item{horizontal}{direction of scales, vertical by default}
 }
 \value{frameGrob, or NULL if no legends}
 \details{This function gathers together all of the legends produced by

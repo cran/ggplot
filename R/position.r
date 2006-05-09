@@ -26,7 +26,7 @@ ps_map <- function(projection="mercator", params=NULL) {
 	)
 }
 
-map.ps_map <- function(scale, data, ...) {
+map_aesthetic.ps_map <- function(scale, data, ...) {
 	proj <- do.call(mapproject, 
 		list(data$x, data$y, projection=scale$projection, data$params)
 	)
@@ -65,7 +65,7 @@ guides.ps_double <- function(scale, ...) {
 
 range.ps_double <- function(x, ...) x$range
 
-map.ps_double <- function(scale, data, ...) {
+map_aesthetic.ps_double <- function(scale, data, ...) {
 	data.frame(x=data$x, y=data$y)
 }
 

@@ -1,14 +1,16 @@
 \name{schsv}
 \alias{schsv}
+\alias{scfillhsv}
 \title{Scale: colour (hsv)}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
 Scale continuous variables to hue, saturation and value components of colour.
 }
-\usage{schsv(plot = .PLOT, to=list())}
+\usage{schsv(plot = .PLOT, name="", to=list())}
 \arguments{
 \item{plot}{}
+\item{name}{}
 \item{to}{}
 }
 

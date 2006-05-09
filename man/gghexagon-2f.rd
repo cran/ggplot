@@ -6,7 +6,7 @@
 \description{
 Create hexagon binning of data points as created by Dan Carr.
 }
-\usage{gghexagon(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{gghexagon(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -21,8 +21,8 @@ then plots them.
 Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -34,8 +34,8 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item xbins: number of bins to use
-\item ...: other arguments passed to \code{\link[hexbin]{grid.hexagons}}
+\item \code{xbins}:number of bins to use
+\item \code{...}:other arguments passed to \code{\link[hexbin]{grid.hexagons}}
 }}
 \seealso{\code{\link[hexbin]{grid.hexagon}}, \code{\link[hexbin]{grob_2density}} for another way of dealing with overplotting}
 \examples{m <- ggplot(movies, aesthetics=list(y=length, x=rating))

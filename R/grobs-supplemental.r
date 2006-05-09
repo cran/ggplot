@@ -1,16 +1,22 @@
-# Grob strip
-# Grob for strip labels
+# Grob grid
+# Build up a subtle background grid 
 # 
-# @arguments text to display
-# @arguments orientation, horizontal or vertical
-# @keyword hplot 
-# @keyword internal
-ggstrip <- function(text, horizontal=TRUE) {
+# @keyword hplot
+# @keyword internal 
+# @arguments not used 
+# @arguments x axis lines
+# @arguments y axis lines 
+# @arguments not used
+grob_grid <- function(aesthetics, xbreaks, ybreaks, fill=ggopt()$grid.fill, colour=ggopt()$grid.colour, ...) {
+	gp <- gpar(fill=fill, col=colour)
 	gTree(children = gList(
-		rectGrob(gp=gpar(fill="grey80", col="white")),
-		textGrob(text, rot=-90 * (1 - horizontal))
+		rectGrob(gp=gpar(fill=fill, col=NA)),
+		segmentsGrob(xbreaks, unit(0, "npc"), xbreaks, unit(1, "npc"), gp = gp, default.units="native"),
+		segmentsGrob(unit(0, "npc"), ybreaks, unit(1, "npc"), ybreaks, gp = gp, default.units="native"),
+		rectGrob(gp=gpar(col=colour, lwd=3, fill=NA))
 	))	
 }
+
 
 # Grob axis
 # Grob for axes
@@ -94,8 +100,8 @@ ggaxis_labels <- function(at, labels, position) {
 	vp <- axis_vp_path(position, "labels")
 	
 	switch(position,
-		top =    textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = FALSE, name = "labels", vp=vp),
-		bottom = textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = FALSE, name = "labels", vp=vp),
+		top =    textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, name = "labels", vp=vp),
+		bottom = textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, name = "labels", vp=vp),
 		left =   textGrob(labels, unit(1, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, name = "labels", vp=vp),
 		right =  textGrob(labels, unit(1, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, name = "labels", vp=vp),
 	)	
@@ -135,10 +141,10 @@ ggaxis_vp <- function(position, labels, scale=c(0,1)) {
 	)
 	
 	vp_labels <- switch(position,
-		top =    viewport(layout.pos.row = 1, layout.pos.col = 1, name="labels", xscale=scale),
-		bottom = viewport(layout.pos.row = 2, layout.pos.col = 1, name="labels", xscale=scale),
-		left =   viewport(layout.pos.row = 1, layout.pos.col = 1, name="labels", yscale=scale),
-		right =  viewport(layout.pos.row = 1, layout.pos.col = 2, name="labels", yscale=scale)
+		top =    viewport(layout.pos.row = 1, layout.pos.col = 1, name="labels", xscale=scale, clip="off"),
+		bottom = viewport(layout.pos.row = 2, layout.pos.col = 1, name="labels", xscale=scale, clip="off"),
+		left =   viewport(layout.pos.row = 1, layout.pos.col = 1, name="labels", yscale=scale, clip="off"),
+		right =  viewport(layout.pos.row = 1, layout.pos.col = 2, name="labels", yscale=scale, clip="off")
 	)
 
 	vp_ticks <- switch(position,

@@ -11,20 +11,20 @@
 # @arguments character vector of break labels
 # @arguments grob function to use when drawing legend
 # @seealso \code{\link{ggfluctuation}} for a use
-scmanual <- function(plot = .PLOT, variable="x", breaks=NULL, labels=as.character(breaks), grob=function(x) grob_point(x, unique=FALSE)) {
+scmanual <- function(plot = .PLOT, variable="x", name="", breaks=NULL, labels=as.character(breaks), grob=function(x) grob_point(x, unique=FALSE)) {
 	add_scale(plot,  
-	  scale_manual(variable=variable, breaks=breaks, labels=labels, grob=grob) 
+	  scale_manual(variable=variable, name=name, breaks=breaks, labels=labels, grob=grob) 
 	)
 }
 
-scale_manual <- function(variable="x", breaks=NULL, labels=labels, grob=function(x) grob_point(x, unique=FALSE)) {
+scale_manual <- function(name="", variable="x", breaks=NULL, labels=labels, grob=function(x) grob_point(x, unique=FALSE)) {
 	structure(
-		list(variable=variable, breaks=breaks, labels=labels, grob=grob), 
+		list(variable=variable, name=name, breaks=breaks, labels=labels, grob=grob), 
 		class = c("manual", "scale")
 	)
 }
 "update<-.manual" <- function(x, value) x
-map.manual <- function(scale, data, ...) data[,input(scale), drop=FALSE]
+map_aesthetic.manual <- function(scale, data, ...) data[,input(scale), drop=FALSE]
 breaks.manual <- function(scale, ...) scale$breaks
 labels.manual <- function(object, ...) scale$labels
 
@@ -42,6 +42,6 @@ print.manual <- function(x, ...) {
 
 defaultgrob.manual <- function(x) x$grob
 guides.manual <- function(scale, ...) {
-  if(is.null(scale$breaks)) return()
+  if(is.null(scale$labels)) return()
   guides.default(scale, ...)
 }

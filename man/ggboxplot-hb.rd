@@ -6,7 +6,7 @@
 \description{
 Add box and whiskers
 }
-\usage{ggboxplot(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggboxplot(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -17,8 +17,8 @@ Add box and whiskers
 \details{Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -30,12 +30,13 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item breaks: how to break up the x axis
+\item \code{breaks}:how to break up the x axis
 \item other arguments passed \code{\link{boxplot}}
 }}
 \seealso{\code{\link{ggquantile}} for a continuous analogue of the boxplot}
-\examples{p <- ggplot(mtcars, aesthetics=list(y=mpg, x=cyl))
+\examples{p <- ggplot(mtcars, aesthetics=list(y=mpg, x=factor(cyl)))
 ggpoint(p)
 ggboxplot(p)
+ggboxplot(p, fill="pink", colour="green")
 ggpoint(ggboxplot(p))}
 \keyword{hplot}

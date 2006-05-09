@@ -6,12 +6,14 @@
 \description{
 Build up a subtle background grid
 }
-\usage{grob_grid(aesthetics, xbreaks, ybreaks, ...)}
+\usage{grob_grid(aesthetics, xbreaks, ybreaks, fill=ggopt()$grid.fill, colour=ggopt()$grid.colour, ...)}
 \arguments{
 \item{aesthetics}{not used}
 \item{xbreaks}{x axis lines}
 \item{ybreaks}{y axis lines}
-\item{...}{not used}
+\item{fill}{not used}
+\item{colour}{}
+\item{...}{}
 }
 
 \details{}

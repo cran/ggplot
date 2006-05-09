@@ -2,13 +2,13 @@
 \alias{ggplot.default}
 \alias{package-ggplot}
 \alias{ggplot}
-\title{Creat a new plot}
+\title{Create a new plot}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
 Create a new ggplot plot
 }
-\usage{ggplot.default(data, formula = . ~ ., margins=FALSE, aesthetics=list(), ...)}
+\usage{ggplot.default(data = NULL, formula = . ~ ., margins=FALSE, aesthetics=list(), ...)}
 \arguments{
 \item{data}{default data frame}
 \item{formula}{formula describing row and column layout, see \code{\link{reshape}} for more details}
@@ -31,20 +31,21 @@ Steps to create a plot:
 \item Create a new plot.  (\code{p <- ggplot(mtcars, aesthetics=list(y=hp, x=mpg))})
 \item Set scales (if necessary)
 \item Add grobs to the plot (\code{ggpoint(p)})
-
 }
+
+or, use \code{\link{qplot}}
 
 Simple grobs:
 
 \itemize{
 \item \code{\link{ggabline}}: line with given slope and intercept
 \item \code{\link{ggarea}}: area (polygons with base on y=0)
+\item \code{\link{ggbar}}: bars (stocked and dodgted)
 \item \code{\link{ggjitter}}: jittered points (useful for discrete data)
 \item \code{\link{ggline}}: lines (paths sorted by x-axis values)
 \item \code{\link{ggpath}}: paths
 \item \code{\link{ggpoint}}: points
-\item \code{\link{ggpolygon}}: polygon (paths with the ends joined)
-\item \code{\link{ggrect}}: rectangles
+\item \code{\link{ggribbon}}: ribbon
 \item \code{\link{ggtext}}: text
 \item \code{\link{ggtile}}: tiles, like a levelplot
 }
@@ -54,6 +55,7 @@ Complex grobs:
 \itemize{
 \item \code{\link{ggboxplot}}: box plot
 \item \code{\link{ggcontour}}: contour lines
+\item \code{\link{ggdensity}}: 1d density plot (continuous analogue of histogram)
 \item \code{\link{gg2density}}: 2d density countours
 \item \code{\link{gghexagon}}: hexagon binned plot
 \item \code{\link{gghistogram}}: histogram
@@ -76,12 +78,13 @@ For scales that control position of the points see:
 For other scales, see:
 
 \itemize{
-\item \code{\link{sccolour}}: colour categorical variables using Brewer colour scales
-\item \code{\link{scgradient}}: colour continuous scales with a gradient
-\item \code{\link{schcl}}: map continuous variable to hue, chroma or luminance components
-\item \code{\link{schsv}}: map continuous variable to hue, saturation or value components
+\item \code{\link{sccolour}}: colour categorical variables using Brewer colour scales (see also \code{\link{scfill}})
+\item \code{\link{scgradient}}: colour continuous scales with a gradient (see also \code{\link{scfillgradient}})
+\item \code{\link{schcl}}: map continuous variable to hue, chroma or luminance components (see also \code{\link{scfillhcl}})
+\item \code{\link{schsv}}: map continuous variable to hue, saturation or value components (see also \code{\link{scfillhsv}})
+\item \code{\link{scmanual}}: no automatic conversion, uses raw values directly
 \item \code{\link{sclinetype}}: line type (solid, dashed, dotted, etc.)
-\item \code{\link{scrgb}}: map continuous variable to red, green or blue components
+\item \code{\link{scrgb}}: map continuous variable to red, green or blue components (see also \code{\link{scfillrgb}})
 \item \code{\link{scshape}}: point shape (glyph)
 \item \code{\link{scsize}}: point or line size
 }
@@ -95,8 +98,11 @@ the modified plot object.  This lets you quickly experiment with different
 versions of the plot, using different grobs or scales.  You can see how this
 works in the examples
 
-You can also use \code{summary} to give a quick description of a plot.}
-\seealso{\url{http://had.co.nz/ggplot}, \code{\link[reshape]{stamp}}, \code{\link[reshape]{reshape}}}
+You can also use \code{summary} to give a quick description of a plot.
+
+If you want to change the background colour, how the panel strips are displayed,
+or any other default graphical option, see \code{\link{ggopt}}.}
+\seealso{\url{http://had.co.nz/ggplot}, \code{\link[reshape]{stamp}}, \code{\link[reshape]{reshape}}, \code{\link{ggopt}}}
 \examples{p <- ggplot(tips)
 summary(p)
 ggpoint(p, aesthetic=list(y = tip, x=total_bill))
@@ -104,24 +110,25 @@ p <- ggplot(tips, aesthetic=list(y = tip, x=total_bill))
 p$title <- "Tips"
 summary(p)
 ggpoint(p)
+ggpoint(p, colour="darkgreen", size=3)
 ggpoint(p, list(colour=sex))
 ggpoint(ggplot(tips, . ~ sex,aesthetics = list(y = tip, x = total_bill)))
 p <- ggplot(tips, smoker ~ sex,aesthetics = list(y = tip, x = total_bill))
 ggpoint(p)
 ggsmooth(ggpoint(p))
 ggsmooth(ggpoint(p), method=lm, formula=y~x)
-ggsmooth(ggpoint(p), method=MASS::rlm, formula=y~x)
 ggabline(ggpoint(p), slope=c(0.1,0.15,0.2))
 (p2 <- ggabline(ggpoint(p, aes=list(colour=tip/total_bill)), slope=c(0.1,0.15,0.2)))
 summary(p2)
 scgradient(p2)
 scgradient(p2, midpoint=0.15, high="green", mid="yellow")
 
-p<-ggplot(tips, sex ~ smoker, aesthetics=list(x=tip/total_bill))
-gghistogram(p,scale="density")
+p<-ggplot(tips, sex ~ smoker, aesthetics=list(x=tip/total_bill), margins=TRUE)
+gghistogram(p)
 gghistogram(p,scale="density", breaks=seq(0,1, length=20))
+ggdensity(gghistogram(p))
 
 p<-ggplot(tips, . ~ smoker, aesthetics=list(x=sex, y=tip))
 ggboxplot(p)
-ggboxplot(ggjitter(p))}
+ggjitter(ggboxplot(p))}
 \keyword{hplot}

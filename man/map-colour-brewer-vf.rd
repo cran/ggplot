@@ -9,10 +9,10 @@
 \description{
 Map categorical variables to Brewer colour scales
 }
-\usage{map_colour_brewer(x, num=1)}
+\usage{map_colour_brewer(x, palette=1)}
 \arguments{
 \item{x}{data vector}
-\item{num}{palette number to use}
+\item{palette}{palette number to use}
 }
 
 \details{If x is not a factor, will be converted to one by \code{\link{chop_auto}}.

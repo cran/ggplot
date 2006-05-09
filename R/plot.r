@@ -1,4 +1,4 @@
-# Creat a new plot
+# Create a new plot
 # Create a new ggplot plot
 # 
 # This function creates the basic ggplot object which you can then
@@ -15,20 +15,21 @@
 #  \item Create a new plot.  (\code{p <- ggplot(mtcars, aesthetics=list(y=hp, x=mpg))})
 #  \item Set scales (if necessary)
 #  \item Add grobs to the plot (\code{ggpoint(p)})
-# 
 # }
+# 
+# or, use \code{\link{qplot}}
 # 
 # Simple grobs: 
 # 
 # \itemize{
 # 	\item \code{\link{ggabline}}: line with given slope and intercept
 # 	\item \code{\link{ggarea}}: area (polygons with base on y=0)
+# 	\item \code{\link{ggbar}}: bars (stocked and dodgted)
 # 	\item \code{\link{ggjitter}}: jittered points (useful for discrete data)
 # 	\item \code{\link{ggline}}: lines (paths sorted by x-axis values)
 # 	\item \code{\link{ggpath}}: paths
 # 	\item \code{\link{ggpoint}}: points
-# 	\item \code{\link{ggpolygon}}: polygon (paths with the ends joined)
-# 	\item \code{\link{ggrect}}: rectangles
+# 	\item \code{\link{ggribbon}}: ribbon
 # 	\item \code{\link{ggtext}}: text
 # 	\item \code{\link{ggtile}}: tiles, like a levelplot
 # }
@@ -38,6 +39,7 @@
 # \itemize{
 # 	\item \code{\link{ggboxplot}}: box plot
 # 	\item \code{\link{ggcontour}}: contour lines
+# 	\item \code{\link{ggdensity}}: 1d density plot (continuous analogue of histogram)
 # 	\item \code{\link{gg2density}}: 2d density countours
 # 	\item \code{\link{gghexagon}}: hexagon binned plot
 # 	\item \code{\link{gghistogram}}: histogram
@@ -60,12 +62,13 @@
 # For other scales, see:
 #
 # \itemize{
-# 	\item \code{\link{sccolour}}: colour categorical variables using Brewer colour scales
-# 	\item \code{\link{scgradient}}: colour continuous scales with a gradient
-# 	\item \code{\link{schcl}}: map continuous variable to hue, chroma or luminance components
-# 	\item \code{\link{schsv}}: map continuous variable to hue, saturation or value components
+# 	\item \code{\link{sccolour}}: colour categorical variables using Brewer colour scales (see also \code{\link{scfill}})
+# 	\item \code{\link{scgradient}}: colour continuous scales with a gradient (see also \code{\link{scfillgradient}})
+# 	\item \code{\link{schcl}}: map continuous variable to hue, chroma or luminance components (see also \code{\link{scfillhcl}})
+# 	\item \code{\link{schsv}}: map continuous variable to hue, saturation or value components (see also \code{\link{scfillhsv}})
+# 	\item \code{\link{scmanual}}: no automatic conversion, uses raw values directly
 # 	\item \code{\link{sclinetype}}: line type (solid, dashed, dotted, etc.)
-# 	\item \code{\link{scrgb}}: map continuous variable to red, green or blue components
+# 	\item \code{\link{scrgb}}: map continuous variable to red, green or blue components (see also \code{\link{scfillrgb}})
 # 	\item \code{\link{scshape}}: point shape (glyph)
 # 	\item \code{\link{scsize}}: point or line size
 # }
@@ -81,13 +84,16 @@
 # 
 # You can also use \code{summary} to give a quick description of a plot.
 # 
+# If you want to change the background colour, how the panel strips are displayed,
+# or any other default graphical option, see \code{\link{ggopt}}.
+# 
 # @alias package-ggplot
 # @alias ggplot
 # @arguments default data frame
 # @arguments formula describing row and column layout, see \code{\link{reshape}} for more details
 # @arguments a vector of names giving which margins to display, can include grand\_row and grand\_col or uss TRUE to display all margins
 # @arguments default list of aesthetic mappings (these can be colour, size, shape, line type -- see individual grob functions for more details)
-# @seealso \url{http://had.co.nz/ggplot}, \code{\link[reshape]{stamp}}, \code{\link[reshape]{reshape}} 
+# @seealso \url{http://had.co.nz/ggplot}, \code{\link[reshape]{stamp}}, \code{\link[reshape]{reshape}}, \code{\link{ggopt}} 
 # @keyword hplot
 #X p <- ggplot(tips)
 #X summary(p)
@@ -96,42 +102,41 @@
 #X p$title <- "Tips"
 #X summary(p)
 #X ggpoint(p)
+#X ggpoint(p, colour="darkgreen", size=3)
 #X ggpoint(p, list(colour=sex))
 #X ggpoint(ggplot(tips, . ~ sex,aesthetics = list(y = tip, x = total_bill)))
 #X p <- ggplot(tips, smoker ~ sex,aesthetics = list(y = tip, x = total_bill))
 #X ggpoint(p)
 #X ggsmooth(ggpoint(p))
 #X ggsmooth(ggpoint(p), method=lm, formula=y~x)
-#X ggsmooth(ggpoint(p), method=MASS::rlm, formula=y~x)
 #X ggabline(ggpoint(p), slope=c(0.1,0.15,0.2))
 #X (p2 <- ggabline(ggpoint(p, aes=list(colour=tip/total_bill)), slope=c(0.1,0.15,0.2)))
 #X summary(p2)
 #X scgradient(p2)
 #X scgradient(p2, midpoint=0.15, high="green", mid="yellow")
 #X
-#X p<-ggplot(tips, sex ~ smoker, aesthetics=list(x=tip/total_bill))
-#X gghistogram(p,scale="density")
+#X p<-ggplot(tips, sex ~ smoker, aesthetics=list(x=tip/total_bill), margins=TRUE)
+#X gghistogram(p)
 #X gghistogram(p,scale="density", breaks=seq(0,1, length=20))
-#X
+#X ggdensity(gghistogram(p))
+#X 
 #X p<-ggplot(tips, . ~ smoker, aesthetics=list(x=sex, y=tip))
 #X ggboxplot(p)
-#X ggboxplot(ggjitter(p))
-ggplot.default <- function(data, formula = . ~ ., margins=FALSE, aesthetics=list(), ...) {
-	
+#X ggjitter(ggboxplot(p))
+ggplot.default <- function(data = NULL, formula = . ~ ., margins=FALSE, aesthetics=list(), ...) {
 	p <- structure(list(
 		data = data, 
 		grobs = list(),
 		scales = scales(),
 		defaults = uneval(substitute(aesthetics)),
 		title = "",
-		xlabel = "",
-		ylabel = "",
 		fixedaspect = FALSE,
 	), class="ggplot")
 	
-	p$xlabel <- deparse(p$defaults$x)
-	p$ylabel <- deparse(p$defaults$y)
+	p$xlabel <- if (!is.null(p$defaults$x)) deparse(p$defaults$x) else ""
+	p$ylabel <- if (!is.null(p$defaults$y)) deparse(p$defaults$y) else ""
 	
+	if (inherits(formula, "formula")) formula <- deparse(substitute(formula)) 
 	p <- setfacets(p, formula, margins)
 	(.PLOT <<- p)
 }
@@ -158,6 +163,7 @@ defaultaesthetics <- function(plot, aesthetics) {
 # @arguments a vector of names giving which margins to display, can include grand\_row and grand\_col or uss TRUE to display all margins
 # @keyword hplot 
 setfacets <- function(p = .PLOT, formula = . ~ . , margins = FALSE) {
+	if (inherits(formula, "formula")) formula <- deparse(substitute(formula)) 
 	vars <- cast_parse_formula(formula, names(p$data))
 
 	p$formula <- formula

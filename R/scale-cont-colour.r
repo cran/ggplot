@@ -13,14 +13,14 @@
 # 
 # @keyword hplot
 # @keyword internal 
-scale_cont_colour <- function(inputs, to=list()) {
+scale_cont_colour <- function(inputs, name="", variable="colour", to=list()) {
 	type <- paste(inputs[1:3], collapse="")
-	x <- list(inputs=inputs, to=to, type=type)
+	x <- list(inputs=inputs, name=name, variable=variable, to=to, type=type)
 	class(x) <- c("scale_cont_colour", "scale")
 	x
 }
 input.scale_cont_colour <- function(scale)  scale$inputs
-output.scale_cont_colour <- function(scale) "colour"
+output.scale_cont_colour <- function(scale) scale$variable
 
 guides.scale_cont_colour <- function(scale, ...) NULL
 
@@ -31,7 +31,7 @@ guides.scale_cont_colour <- function(scale, ...) NULL
 	x
 }
 
-map.scale_cont_colour <- function(scale, data, ...) {
+map_aesthetic.scale_cont_colour <- function(scale, data, ...) {
 	vars <- intersect(names(data), input(scale))
 	func <- paste("map_colour", scale$type, sep="_")
 	data.frame(colour=do.call(func, c(data[, vars, drop=FALSE], scale$from, scale$to)))
@@ -50,6 +50,7 @@ map.scale_cont_colour <- function(scale, data, ...) {
 # @arguments named list of target ranges (r.to, g.to, b.to, a.to)
 # @keyword hplot 
 # @seealso \code{\link{map_colour_rgb}}, \code{\link{rgb}}
+# @alias scfillrgb
 #X p <- scrgb(ggplot(movies, aes=list(y=rating, x=year)))
 #X ggpoint(p, list(r=year))
 #X ggpoint(p, list(b=rating))
@@ -57,8 +58,12 @@ map.scale_cont_colour <- function(scale, data, ...) {
 #X scrgb(ggpoint(p, list(b=rating, r=1)), list(b.to=c(0.25,0.75)))
 #X ggpoint(p, list(b=rating, r=year))
 #X ggpoint(p, list(b=rating, r=year, g=year))
-scrgb <- function(plot = .PLOT, to=list()) add_scale(plot, scale_rgb(to))
-scale_rgb <- function(to=list()) scale_cont_colour(c("r","g","b","a"), to)
+scrgb <- function(plot = .PLOT, name="", to=list()) add_scale(plot, scale_rgb(name=name, to))
+scale_rgb <- function(name="", to=list()) scale_cont_colour(name=name, c("r","g","b","a"), to)
+
+scfillrgb <- function(plot = .PLOT, name="", to=list()) add_scale(plot, scale_fill_rgb(name=name, to))
+scale_fill_rgb <- function(name="", to=list()) scale_cont_colour(name=name, variable="fill", c("r","g","b","a"), to)
+
 
 # Scale: colour (hsv)
 # Scale continuous variables to hue, saturation and value components of colour.
@@ -69,14 +74,18 @@ scale_rgb <- function(to=list()) scale_cont_colour(c("r","g","b","a"), to)
 # 
 # @seealso \code{\link{map_colour_hsv}}, \code{\link{hsv}}
 # @keyword hplot 
+# @alias scfillhsv
 #X p <- schsv(ggplot(movies, aes=list(y=rating, x=year)))
 #X ggpoint(p, list(h=year))
 #X schsv(ggpoint(p, list(h=year)), list(h.to=c(0.3,0.5)))
 #X ggpoint(p, list(s=rating))
 #X ggpoint(p, list(v=rating, h=0.3, s=rating))
 #X ggpoint(p, list(h=rating, v=year))
-schsv <- function(plot = .PLOT, to=list()) add_scale(plot, scale_hsv(to))
-scale_hsv <- function(to=list()) scale_cont_colour(c("h","s","v","a"), to)
+schsv <- function(plot = .PLOT, name="", to=list()) add_scale(plot, scale_hsv(name=name, to))
+scale_hsv <- function(name="", to=list()) scale_cont_colour(name=name, c("h","s","v","a"), to)
+
+scfillhsv <- function(plot = .PLOT, name="", to=list()) add_scale(plot, scale_fill_hsv(name=name, to))
+scale_fill_hsv <- function(name="", to=list()) scale_cont_colour(name=name, variable="fill", c("h","s","v","a"), to)
 
 # Scale: colour (hcl)
 # Scale continuous variables to hue, chroma and luminance components of colour
@@ -89,6 +98,7 @@ scale_hsv <- function(to=list()) scale_cont_colour(c("h","s","v","a"), to)
 # 
 # @keyword hplot 
 # @seealso \code{\link{map_colour_hcl}}, \code{\link{hcl}}
+# @alias scfillhcl
 #X p <- schcl(ggplot(movies, aes=list(y=rating, x=year)))
 #X ggpoint(p, list(h=year))
 #X schcl(ggpoint(p, list(h=year)), list(h.to=c(45,60)))
@@ -96,6 +106,8 @@ scale_hsv <- function(to=list()) scale_cont_colour(c("h","s","v","a"), to)
 #X ggpoint(p, list(l=length))
 #X ggpoint(p, list(h=rating, l=year))
 #X ggpoint(p, list(h=rating, c=year, l=year))
-schcl <- function(plot = .PLOT, to=list()) add_scale(plot, scale_hcl(to))
-scale_hcl <- function(to=list()) scale_cont_colour(c("h","c","l","a"), to)
+schcl <- function(plot = .PLOT, name="", to=list()) add_scale(plot, scale_hcl(name=name, to))
+scale_hcl <- function(name="", to=list()) scale_cont_colour(name=name, c("h","c","l","a"), to)
 
+scfillhcl <- function(plot = .PLOT, name="", to=list()) add_scale(plot, scale_fill_hcl(name=name, to))
+scale_fill_hcl <- function(name="", to=list()) scale_cont_colour(name=name, variable="fill", c("h","c","l","a"), to)

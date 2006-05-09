@@ -6,7 +6,7 @@
 \description{
 Add quantile lines from a quantile regression
 }
-\usage{ggquantile(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggquantile(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -20,8 +20,8 @@ Lines will be automatically sized to reflect their distance from the median.
 Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -33,11 +33,11 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item quantiles: quantiles to display
-\item formula: formula to use in quantile regression
-\item colour: colour of lines
+\item \code{quantiles}:quantiles to display
+\item \code{formula}:formula to use in quantile regression
 }}
 \seealso{\code{\link[quantreg]{rq}} for the code used to fit the quantile regression}
 \examples{m <- ggplot(movies, aesthetics=list(y=length, x=rating))
-ggquantile(gghexagon(m))}
+ggquantile(gghexagon(m))
+ggquantile(gghexagon(m), colour="green")}
 \keyword{hplot}

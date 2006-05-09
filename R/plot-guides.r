@@ -5,10 +5,10 @@
 # 
 #  \item the background colour over the whole plotting area (white)
 #  \item within each a panel a gray background with white gridlines 
-#     (see \code{\link{ggplot.options}}) to change)
+#     (see \code{\link{ggopt}}) to change)
 #  \item vertical and horizontal axes (appearance control by options
 #     to the position scales)
-#  \item facetting labels (see \code{\link{ggplot.options}}) to change default
+#  \item facetting labels (see \code{\link{ggopt}}) to change default
 #    colours etc)
 # 
 # To decouple plot construction from the objects that are placed within it,
@@ -33,14 +33,14 @@ guides_basic <- function(plot, scales=scales_default(plot)) {
 	axes_h <- matrix(lapply(1:nc, function(n) editGrob(guides$x, name=paste("yaxis", n, sep=""))), nrow=1)
 	
 	breaks <- position_apply(plot$scales, breaks)
-	grid <- matrix(rep(list(grob_grid(xbreaks=breaks$x, ybreaks=breaks$y)), nc * nr), ncol = nc)
+	grid <- matrix(rep(list(grob_grid(xbreaks=breaks$x, ybreaks=breaks$y, fill=plot$grid.fill, colour=plot$grid.colour)), nc * nr), ncol = nc)
 	pg <- expand.grid(1:nr, 1:nc)
 	grid <- matrix(mapply(function(x,y) {
 	  editGrob(grid[[x,y]], name=paste("grid", x, "-", y,  sep=""))
 	},pg[,1], pg[,2], SIMPLIFY=FALSE), ncol=nc)
 	
 	list(
-		background = list(rectGrob(gp=gpar(fill="white", col=NA))),
+		background = list(rectGrob(gp=gpar(fill=plot$background.fill, col=NA))),
 		grid =   plot_grob_matrix(grid, "panel"), 
 		axes_v = plot_grob_matrix(axes_v, "axis_v"),
 		axes_h = plot_grob_matrix(axes_h, "axis_h"),
@@ -48,7 +48,7 @@ guides_basic <- function(plot, scales=scales_default(plot)) {
 	)
 }
 
-# Default lables
+# Default labels
 # Generate default facet labels.
 # 
 # Facet labels are only displayed when there are facets in a particular
@@ -60,17 +60,17 @@ guides_basic <- function(plot, scales=scales_default(plot)) {
 # @value gList containg text grobs with appropriate viewports
 # @keyword hplot
 # @keyword internal
-labels_default <- function(plot) {
+labels_default <- function(plot, strip = plot$striplabel) {
 	add.names <- function(x) {
-		for(i in 1:ncol(x)) x[,i] <- paste(colnames(x)[i],x[,i], sep = ": ")
+		for(i in 1:ncol(x)) x[,i] <- plot$strip.text(colnames(x)[i], x[,i])
 		x
 	}
-	
+
 	row.labels <- add.names(rrownames(plot$facet))
 	col.labels <- add.names(rcolnames(plot$facet))
   
-  labels_h <- apply(col.labels, c(2,1), ggstrip)
-	labels_v <- apply(row.labels, c(1,2), ggstrip, hor=FALSE)
+  labels_h <- apply(col.labels, c(2,1), ggstrip, fill=plot$strip.fill, colour=plot$strip.colour)
+	labels_v <- apply(row.labels, c(1,2), ggstrip, hor=FALSE, fill=plot$strip.fill, colour=plot$strip.colour)
 
   labels_grobs <- unlist(compact(list(
     if (ncol(plot$facet) > 1) plot_grob_matrix(labels_h),
@@ -78,8 +78,22 @@ labels_default <- function(plot) {
   )), recursive=FALSE)
   
   if (!is.null(labels_grobs)) do.call(gList, labels_grobs)
-}	
+}
 
+
+# Grob strip
+# Grob for strip labels
+# 
+# @arguments text to display
+# @arguments orientation, horizontal or vertical
+# @keyword hplot 
+# @keyword internal
+ggstrip <- function(text, horizontal=TRUE, fill=ggopt()$strip.fill, colour=ggopt()$strip.colour) {
+	gTree(children = gList(
+		rectGrob(gp=gpar(fill=fill, col=colour, lwd=3)),
+		textGrob(text, rot=-90 * (1 - horizontal))
+	))	
+}
 
 # Legends
 # Create and arrange legends for all scales.
@@ -95,29 +109,72 @@ labels_default <- function(plot) {
 # @keyword hplot 
 # @value frameGrob, or NULL if no legends
 # @keyword internal
-legends <- function(scales, vertical = TRUE) {
+legends <- function(scales, horizontal = FALSE) {
 	position_scale <- sapply(scales, function(x) inherits(x, "position"))
 	legs <- compact(lapply(scales[!position_scale], guides))
 
   n <- length(legs)
 	if (n == 0) return()
 	
-	if (vertical) {
-  	width <-  do.call(sum, lapply(legs, widthDetails))
+	if (!horizontal) {
+  	width <-   do.call(sum, lapply(legs, widthDetails))
   	heights <- do.call(unit.c, lapply(legs, function(x) heightDetails(x) * 1.1))
-  	fg <- frameGrob(grid.layout(nrow=n, 1, widths=width, heights=heights, just=c("left", "centre")))
+  	fg <- frameGrob(grid.layout(nrow=n, 1, widths=width, heights=heights, just="centre"))
   	for(i in 1:n) {
   		fg <- placeGrob(fg, legs[[i]], row=i)
   	}
-	  
 	} else {
-	  height <-  do.call(sum, lapply(legs, widthDetails))
-  	widths <- do.call(unit.c, lapply(legs, function(x) heightDetails(x) * 1.1))
-  	fg <- frameGrob(grid.layout(1, n, widths=widths, heights=height, just=c("centre", "bottom")))
+	  height <- do.call(sum, lapply(legs, heightDetails))
+  	widths <- do.call(unit.c, lapply(legs, function(x) widthDetails(x) * 1.1))
+  	fg <- frameGrob(grid.layout(ncol=n, 1, widths=widths, heights=height, just="centre"))
   	for(i in 1:n) {
   		fg <- placeGrob(fg, legs[[i]], col=i)
   	}
-
 	}
+	fg
+}
+
+# Default guides
+# Construct a default guide (legend) for a scale
+# 
+# This is used for automatic legends.
+# 
+# @arguments scale
+# @keyword hplot 
+guides.default <- function(scale, ...) {
+	labels <- rev(labels(scale))
+	breaks <- rev(breaks(scale))
+
+	if (is.null(breaks)) return(NULL)
+	grob <- defaultgrob(scale)
+	
+	title <- textGrob(scale$name, x = 0, y = 0.5, just = c("left", "centre"), gp=gpar(fontface="bold"))
+	
+	nkeys <- length(labels)
+	hgap <- vgap <- unit(0.3, "lines")
+	
+	values <- data.frame(breaks)
+	names(values) <- output(scale)
+
+	widths <- unit.c(unit(1.4, "lines"), hgap, max(unit.c(unit(1, "grobwidth", title), unit(rep(1, nkeys), "strwidth", as.list(labels)))), hgap)
+	heights <- unit.c(
+		unit(1, "grobheight", title) + 2*vgap, 
+		unit.pmax(unit(1.4, "lines"), vgap + unit(rep(1, nkeys), "strheight", as.list(labels)))
+	)
+	
+	# Make a table, 
+  legend.layout <- grid.layout(nkeys+1, 4, widths = widths, heights = heights, just=c("left","top"))
+  fg <- frameGrob(layout = legend.layout)
+	fg <- placeGrob(fg, rectGrob(gp=gpar(fill="NA", col="NA")))
+
+	fg <- placeGrob(fg, title, col=1:2, row=1)
+	for (i in 1:nkeys) {
+		df <- as.list(values[i,, drop=FALSE])
+		df$x <- unit(0.5, "npc")
+		df$y <- unit(0.5, "npc")
+		fg <- placeGrob(fg, do.call(grob, list(df)), col = 1, row = i+1)
+		fg <- placeGrob(fg, textGrob(labels[i], x = 0, y = 0.5, just = c("left", "centre")), col = 3, row = i+1)
+	}
+
 	fg
 }

@@ -6,7 +6,7 @@
 \description{
 Add rectangles to a plot
 }
-\usage{ggrect(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggrect(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -14,16 +14,18 @@ Add rectangles to a plot
 \item{data}{data source, if not specified the plot default will be used}
 }
 
-\details{The default arguments will draw a barchart.
+\details{This grob provides the basic functionality required by
+\code{\link{ggbar}} and \code{\link{ggtile}}.  You should probably
+not call it yourself
 
 Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
-\item width: width of the rectangle (required)
-\item height: height of the rectangle (required)
-\item fill: fill colour (see \code{\link{sccolour})}
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
+\item \code{width}:width of the rectangle (required)
+\item \code{height}:height of the rectangle (required)
+\item \code{fill}:fill colour (see \code{\link{sccolour})}
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -35,12 +37,8 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item justification: justification of the bar relative to its (x, y) location, see \code{\link{rectGrob} for more details}
-\item colour: a character vector describing the line colour}
+\item \code{justification}:justification of the bar relative to its (x, y) location, see \code{\link{rectGrob} for more details}
 }}
-
-\examples{p <- ggplot(mtcars, aes=list(y=mpg, x=factor(cyl)))
-ggrect(p)
-ggrect(p, list(fill=mpg))
-pscontinuous(ggrect(p, list(fill=mpg), colour="black"), "y", range=c(0,NA))}
+\seealso{\code{\link{ggbar}}, \code{\link{ggtile}}}
+\examples{}
 \keyword{hplot}

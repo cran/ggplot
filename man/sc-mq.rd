@@ -17,6 +17,10 @@
 \alias{range.ps_double}
 \alias{scale_colour}
 \alias{scale_fill}
+\alias{scale_fill_brewer}
+\alias{scale_fill_hcl}
+\alias{scale_fill_hsv}
+\alias{scale_fill_rgb}
 \alias{scale_gradient}
 \alias{scale_hcl}
 \alias{scale_hsv}

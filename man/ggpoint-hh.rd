@@ -6,7 +6,7 @@
 \description{
 Add points to a plot
 }
-\usage{ggpoint(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggpoint(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -17,11 +17,11 @@ Add points to a plot
 \details{Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
-\item size: size of the point, in mm (see \code{\link{scsize})}
-\item shape: shape of the glyph used to draw the point (see \code{\link{scshape})}
-\item colour: point colour (see \code{\link{sccolour})}
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
+\item \code{size}:size of the point, in mm (see \code{\link{scsize})}
+\item \code{shape}:shape of the glyph used to draw the point (see \code{\link{scshape})}
+\item \code{colour}:point colour (see \code{\link{sccolour})}
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -33,7 +33,7 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item unique: if \code{TRUE, draw at most one point at each unique location}
+\item \code{unique}:if \code{TRUE, draw at most one point at each unique location}
 }}
 
 \examples{p <- ggplot(mtcars, aesthetics=list(x=wt, y=mpg))

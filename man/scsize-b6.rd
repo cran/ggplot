@@ -6,10 +6,11 @@
 \description{
 Linearly map size to a variable.
 }
-\usage{scsize(plot = .PLOT, to=c(0.8, 5))}
+\usage{scsize(plot = .PLOT, name="", to=c(0.8, 5))}
 \arguments{
 \item{plot}{plot to add scale to.}
-\item{to}{size range in mm (numeric vector, length 2)}
+\item{name}{size range in mm (numeric vector, length 2)}
+\item{to}{}
 }
 
 \details{The mapping between size and the original variable value is not

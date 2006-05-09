@@ -1,14 +1,16 @@
 \name{schcl}
 \alias{schcl}
+\alias{scfillhcl}
 \title{Scale: colour (hcl)}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
 Scale continuous variables to hue, chroma and luminance components of colour
 }
-\usage{schcl(plot = .PLOT, to=list())}
+\usage{schcl(plot = .PLOT, name="", to=list())}
 \arguments{
 \item{plot}{}
+\item{name}{}
 \item{to}{}
 }
 

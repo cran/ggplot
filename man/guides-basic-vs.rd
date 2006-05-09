@@ -22,10 +22,10 @@ Generate default guides (legends, axes, and labels).
 
 \item the background colour over the whole plotting area (white)
 \item within each a panel a gray background with white gridlines
-(see \code{\link{ggplot.options}}) to change)
+(see \code{\link{ggopt}}) to change)
 \item vertical and horizontal axes (appearance control by options
 to the position scales)
-\item facetting labels (see \code{\link{ggplot.options}}) to change default
+\item facetting labels (see \code{\link{ggopt}}) to change default
 colours etc)
 
 To decouple plot construction from the objects that are placed within it,

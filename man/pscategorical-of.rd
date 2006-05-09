@@ -6,11 +6,12 @@
 \description{
 Add a categorical position scale to the plot
 }
-\usage{pscategorical(plot = .PLOT, variable="x", expand=c(0, 0.55))}
+\usage{pscategorical(plot = .PLOT, variable="x", name="", expand=c(0.01, 0.6))}
 \arguments{
 \item{plot}{ggplot object}
 \item{variable}{axis ("x" or "y")}
-\item{expand}{expansion vector (numeric vector, multiplicative and additive expansion).  Defaults to adding 0.5 on either end of the scale.}
+\item{name}{expansion vector (numeric vector, multiplicative and additive expansion).  Defaults to adding 0.6 on either end of the scale.}
+\item{expand}{}
 }
 
 \details{A categorical scale converts a factor into a numerical representation

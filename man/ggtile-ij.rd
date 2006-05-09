@@ -6,7 +6,7 @@
 \description{
 Add tiles to a plot
 }
-\usage{ggtile(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggtile(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -21,11 +21,11 @@ or \code{\link{image}}.
 Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
-\item width: width of the rectangle
-\item height: height of the rectangle
-\item fill: fill colour (see \code{\link{sccolour})}
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
+\item \code{width}:width of the rectangle
+\item \code{height}:height of the rectangle
+\item \code{fill}:fill colour (see \code{\link{sccolour})}
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or

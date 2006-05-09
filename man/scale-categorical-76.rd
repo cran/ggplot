@@ -6,9 +6,10 @@
 \description{
 Create a categorical scale for the specified variable
 }
-\usage{scale_categorical(variable="x", expand=c(0,0), transform="as.numeric", ...)}
+\usage{scale_categorical(variable="x", name="", expand=c(0,0), transform="as.numeric", ...)}
 \arguments{
 \item{variable}{variable that this scale is for}
+\item{name}{}
 \item{expand}{}
 \item{transform}{}
 \item{...}{}

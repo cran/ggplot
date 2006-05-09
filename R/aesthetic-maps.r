@@ -110,18 +110,26 @@ rescale <- function(x, to=c(0,1), from=range(x, na.rm=TRUE)) {
 # @alias map_color_gradient
 # @keyword hplot
 map_colour_gradient <- function(x, low="red", mid="white",high="black", midpoint = 0, from=range(x, na.rm=TRUE)) {
+	if (length(x) == 0) return()
+	ashcl <- function(x) {
+		rgba <- col2rgb(x, TRUE)/ 255
+		c(as.vector(convertColor(matrix(rgba[1:3], ncol=3), "sRGB", "Lab")), rgba[4])
+	}
 	x <- as.numeric(x)
-	low.rgb  <- col2rgb(low, TRUE)/256
-	mid.rgb  <- col2rgb(mid, TRUE)/256
-	high.rgb <- col2rgb(high, TRUE)/256
+	low.rgb  <- col2rgb(low, alpha=TRUE) / 255# ashcl(low)
+	mid.rgb  <- col2rgb(mid, alpha=TRUE) / 255 #ashcl(mid)
+	high.rgb <- col2rgb(high, alpha=TRUE) / 255 #ashcl(high)
 	
 	colour_interp <- function(i) approxfun(c(from[1], midpoint, from[2]), c(low.rgb[i], mid.rgb[i], high.rgb[i]))
 	interp_r <- colour_interp(1)
 	interp_g <- colour_interp(2)
 	interp_b <- colour_interp(3)
-	#interp_a <- colour_interp(4)
-	                                                           
-	rgb(interp_r(x), interp_g(x), interp_b(x))#, interp_a(x)
+	interp_a <- colour_interp(4)
+
+	#labc <- convertColor(cbind(interp_l(x), interp_ax(x), interp_b(x)), "Lab", "sRGB")
+	#apply(cbind(labc, interp_a(x)), 1, function(x) do.call(rgb, as.list(x)))
+	
+	rgb(interp_r(x), interp_g(x), interp_b(x), interp_a(x))
 }
 
 # Aesthetic mapping: hsv components of colour
@@ -247,7 +255,7 @@ map_linetype <- function(x){
 # @alias map_color_brewer
 # @alias map_color
 # @alias map_colour
-map_colour_brewer <- function(x, num=1){
+map_colour_brewer <- function(x, palette=1){
 	x <- chop_auto(x)
 	type <- brewer_type(x)
 
@@ -260,18 +268,26 @@ map_colour_brewer <- function(x, num=1){
 	}
 	
 	if (n > 9) stop("Too many levels! 9 at most")
-	if (n < 2) stop("Too few levels! 2 at least")
+	if (n < 3) stop("Too few levels! 3 at least")
 	
-	if (n > 2) {
-	  pal <- brewer.pal(n, brewer_palettes(type)[num])
-	} else {
-	  pal <- c("red","blue")
-	}
+	pal <- brewer.pal(n, brewer_palettes(type)[palette])
 	pal[x]
 }
+map_color_brewer <- map_colour_brewer
 
-# Alias colo(u)r Brewer and make default
-map_color <- map_colour <- map_color_brewer <- map_colour_brewer
+
+map_colour <- function(x, h=c(0,270), l=60, c=90) {
+	x <- chop_auto(x)
+	n <- length(levels(x))
+	
+	pal <- hcl(seq(h[1], h[2], length = n), c=c, l=l)
+	pal
+	#names(pal) <- 
+	#pal[levels(x)]
+}
+
+map_color <- map_colour
+
 
 # Brewer type
 # Return the type of factor in Cynthia brewers scheme.

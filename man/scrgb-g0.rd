@@ -1,15 +1,17 @@
 \name{scrgb}
 \alias{scrgb}
+\alias{scfillrgb}
 \title{Scale: colour (rgb)}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
 Scale continuous variables to red, green and blue components of colour.
 }
-\usage{scrgb(plot = .PLOT, to=list())}
+\usage{scrgb(plot = .PLOT, name="", to=list())}
 \arguments{
 \item{plot}{plot to add scale to}
-\item{to}{named list of target ranges (r.to, g.to, b.to, a.to)}
+\item{name}{named list of target ranges (r.to, g.to, b.to, a.to)}
+\item{to}{}
 }
 
 \details{The RGB colour space is NOT perceptually uniform.  Use

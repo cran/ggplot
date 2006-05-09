@@ -6,10 +6,11 @@
 \description{
 Create a scale for categorical shapes.
 }
-\usage{scshape(plot = .PLOT, solid=TRUE)}
+\usage{scshape(plot = .PLOT, name="", solid=TRUE)}
 \arguments{
 \item{plot}{plot to add scale to}
-\item{solid}{should points be solid or hollow?}
+\item{name}{should points be solid or hollow?}
+\item{solid}{}
 }
 
 \details{This scale is automatically added when you use the shape aesthetic

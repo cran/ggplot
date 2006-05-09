@@ -17,16 +17,16 @@
 # 
 # @arguments ggplot object
 # @arguments axis ("x" or "y")
-# @arguments expansion vector (numeric vector, multiplicative and additive expansion).  Defaults to adding 0.5 on either end of the scale.
+# @arguments expansion vector (numeric vector, multiplicative and additive expansion).  Defaults to adding 0.6 on either end of the scale.
 # @keyword hplot
 #X p <- ggpoint(ggplot(mtcars, aesthetics=list(x=cyl, y=mpg)))
 #X pscategorical(p, "x") # no change, because already categorical
 #X pscategorical(p, "y") # chops into discrete segments
-pscategorical <- function(plot = .PLOT, variable="x", expand=c(0, 0.55)) {
-	add_scale(plot,  position_categorical(variable=variable, expand=expand) )
+pscategorical <- function(plot = .PLOT, variable="x", name="", expand=c(0.01, 0.6)) {
+	add_scale(plot,  position_categorical(variable=variable, name=name, expand=expand) )
 }
-position_categorical <- function(variable="x", expand=c(0, 0.5)) {
-	sc <- scale_categorical(variable=variable, expand=expand)
+position_categorical <- function(variable="x", name="", expand=c(0, 0.5)) {
+	sc <- scale_categorical(variable=variable, name=name, expand=expand)
 	class(sc) <- c("position", class(sc))
 	sc
 }
@@ -63,31 +63,28 @@ position_categorical <- function(variable="x", expand=c(0, 0.5)) {
 # @arguments 
 # @keyword hplot 
 # @keyword internal 
-scale_categorical <- function(variable="x", expand=c(0,0), transform="as.numeric", ...) {
+scale_categorical <- function(variable="x", name="", expand=c(0,0), transform="as.numeric", ...) {
 	structure(
-		list(variable=variable, expand=expand, transform=transform, args=list(...)), 
+		list(variable=variable, name=name, expand=expand, transform=transform, args=list(...)), 
 		class = c("categorical", "scale")
 	)
 	
 }
 "update<-.categorical" <- function(x, value) {
 	if (!(input(x) %in% names(value))) return(x)
-	if (inherits(value[[input(x)]], "AsIs")) return(x)
 	
 	val <- chop_auto(value[[input(x)]])
 	x$autobreaks <- attr(val, "breaks")
-  
-  uval <- sort(unique(val))
-  attributes(uval) <- attributes(val)
+ 
+	uval <- sort(unique(val))
+	attributes(uval) <- attributes(val)
 	x$map <- do.call(match.fun(x$transform), c(list(uval), x$args))
 	names(x$map) <- levels(val)
 	x
 }
 
-map.categorical <- function(scale, data, ...) {
-	if (!(input(scale) %in% names(data))) return(data)
-	if (inherits(data[[input(scale)]], "AsIs")) return(data)
-	
+map_aesthetic.categorical <- function(scale, data, ...) {
+	if (!(input(scale) %in% names(data))) return(data.frame())
 	
 	val <- data[[input(scale)]]
 	if (!is.null(scale$autobreaks)) {
@@ -158,16 +155,21 @@ defaultgrob.categorical <- function(x) {
 #X ggjitter(p, list(colour=chop(length)))
 #X ggjitter(p, list(colour=chop(length,3)))
 #X sccolour(ggjitter(p, list(colour=chop(length,3))), 2)
-sccolour <- function(plot = .PLOT, palette=1) {
-	add_scale(plot, scale_colour(palette))
+sccolour <- function(plot = .PLOT, name="", h=c(0,270), l=60, c=90) {
+	add_scale(plot, scale_colour(name=name, h=h, l=l, c=c))
 }
 sccolor <- sccolour
-scale_colour <- function(palette=1) scale_categorical("colour", num=palette, transform="map_colour")
+scale_colour <- function(name="", h=c(0,270), l=60, c=90) scale_categorical("colour", name=name, h=h, l=l, c=c, transform="map_colour")
 
-scfill <- function(plot = .PLOT, palette=1) {
-	add_scale(plot, scale_fill(palette))
+scfill <- function(plot = .PLOT, name="", h=c(0,270), l=60, c=90) {
+	add_scale(plot, scale_fill(name=name, h=h, l=l, c=c))
 }
-scale_fill <- function(palette=1) scale_categorical("fill", num=palette, transform="map_colour")
+scale_fill <- function(name="", h=c(0,270), l=60, c=90) scale_categorical("fill", name=name, h=h, l=l, c=c, transform="map_colour")
+
+#scfillbrewer <- function(plot = .PLOT, name="", palette=1) {
+#	add_scale(plot, scale_fill_brewer(name=name, palette=palette))
+#}
+#scale_fill_brewer <- function(name="", palette=1) scale_categorical("fill", name=name, palette=palette, transform="map_colour_brewer")
 
 # Scale: shape
 # Create a scale for categorical shapes.
@@ -183,10 +185,10 @@ scale_fill <- function(palette=1) scale_categorical("fill", num=palette, transfo
 #X p <- ggplot(mtcars, aes=list(x=mpg, y=wt, shape=cyl))
 #X ggpoint(p)
 #X ggpoint(scshape(p, FALSE))
-scshape <- function(plot = .PLOT, solid=TRUE) {
-	add_scale(plot, scale_shape(solid))
+scshape <- function(plot = .PLOT, name="", solid=TRUE) {
+	add_scale(plot, scale_shape(name=name, solid))
 }
-scale_shape <- function(solid=TRUE) scale_categorical("shape", solid=solid, transform="map_shape")
+scale_shape <- function(name="", solid=TRUE) scale_categorical("shape", name=name, solid=solid, transform="map_shape")
 
 
 # Scale: line type
@@ -202,7 +204,7 @@ scale_shape <- function(solid=TRUE) scale_categorical("shape", solid=solid, tran
 #X p <- ggplot(mtcars, aes=list(x=mpg, y=wt, linetype=cyl))
 #X ggline(p)
 #X ggline(sclinetype(p))
-sclinetype <- function(plot = .PLOT) {
-	add_scale(plot, scale_linetype())
+sclinetype <- function(plot = .PLOT, name="") {
+	add_scale(plot, scale_linetype(name=name))
 }
-scale_linetype <- function() scale_categorical("linetype", transform="map_linetype")
+scale_linetype <- function(name="") scale_categorical("linetype", name=name, transform="map_linetype")

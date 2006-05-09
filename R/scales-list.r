@@ -73,12 +73,13 @@ guides.scales <- function(scale, ...) position_apply(scale, guides)
 # @arguments data
 # @arguments other arguments (unused)
 # @keyword internal
-map.scales <- function(scale, data, ...) {
+map_aesthetic.scales <- function(scale, data, ...) {
 	if (is.list(data) && !is.data.frame(data)) data <- data[[1]]
 	if (length(scale) == 0) return(data)
 
-	results <- lapply(scale, map, data=data)
+	results <- lapply(scale, map_aesthetic, data=data)
 	absent <- sapply(results, function(x) nrow(x) == 0 )
+	
 	data.frame(defaults(as.data.frame(results[!absent]), data))
 }
 
@@ -93,11 +94,11 @@ map_all <- function(scale, matrix) {
 
 	if (length(matrix) == 0) return(matrix)
 	if (is.matrix(matrix)) {
-		apply(matrix, c(1,2), function(x) map(scale, x))
+		apply(matrix, c(1,2), function(x) map_aesthetic(scale, x))
 	} else if(is.list(matrix) && !is.data.frame(matrix)) {
 		lapply(matrix, function(x) map_all(scale, x))
 	} else {
-		map(scale, matrix)
+		map_aesthetic(scale, matrix)
 	}
 	
 }

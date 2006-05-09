@@ -18,6 +18,10 @@
 # @alias range.ps_double
 # @alias scale_colour
 # @alias scale_fill
+# @alias scale_fill_brewer 
+# @alias scale_fill_hcl 
+# @alias scale_fill_hsv
+# @alias scale_fill_rgb
 # @alias scale_gradient
 # @alias scale_hcl
 # @alias scale_hsv
@@ -42,17 +46,17 @@ guides <- function(scale, ...) UseMethod("guides")
 # Map raw data to aesthetics using the provided scale
 # 
 # @keyword hplot 
-# @alias map.scale
+# @alias map_aesthetic.scale
 # @keyword internal 
-# @alias map.categorical 
-# @alias map.continuous 
-# @alias map.gradient
-# @alias map.ps_double
-# @alias map.ps_map
-# @alias map.scale_cont_colour
-# @alias map.manual
-map <- function(scale, data, ...) UseMethod("map")
-map.scale <- function(scale, data, ...) data
+# @alias map_aesthetic.categorical 
+# @alias map_aesthetic.continuous 
+# @alias map_aesthetic.gradient
+# @alias map_aesthetic.ps_double
+# @alias map_aesthetic.ps_map
+# @alias map_aesthetic.scale_cont_colour
+# @alias map_aesthetic.manual
+map_aesthetic <- function(scale, data, ...) UseMethod("map_aesthetic")
+map_aesthetic.scale <- function(scale, data, ...) data
 
 # Input
 # Return what input variable this scale uses
@@ -188,10 +192,10 @@ add_position <- function(plot, pre, position) {
 	if (!(position %in% unlist(input(plot$scales)))) {
 		fac <- any(unlist(lapply(pre, function(x) lapply(x, function(x) is.factor(x[[position]])))))
 		if (fac) {
-			pscategorical(plot, position)
+			pscategorical(plot, variable=position)
 		} else {
-			pscontinuous(plot, position)
-		}		
+			pscontinuous(plot, variable=position)
+		}
 	} else {
 		plot
 	}

@@ -1,13 +1,13 @@
 Package: ggplot
 Type: Package
-Title: Grammar of graphics based plots for R
-Version: 0.2.2
-Date: 2005-10-28
+Title: An implementation of the Grammar of Graphics in R
+Version: 0.3
+Date: 2006-05-09
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
-Description: See \url{http://had.co.nz/ggplot/} for more information.
+Description: An implementation of the grammar of graphics in R. It combines the advantages of both base and lattice graphics: conditioning and shared axes are handled automatically, and you can still build up a plot step by step from multiple data sources. It also implements a more sophisticated multidimensional conditioning system and a consistent interface to map data to aesthetic attributes. See \url{http://had.co.nz/ggplot/} for more information, documentation and examples.
 Suggests: butler, hexbin, mapproj, quantreg
-Depends: grid, reshape, RColorBrewer
+Depends: R (>= 2.3), grid, reshape, RColorBrewer
 LazyData: yes
-License: MIT
-Packaged: Wed Apr  5 11:59:42 2006; hadley
+License: GPL
+Packaged: Thu Jun 22 15:26:47 2006; hadley

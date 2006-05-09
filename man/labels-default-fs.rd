@@ -1,14 +1,15 @@
 \name{labels_default}
 \alias{labels_default}
-\title{Default lables}
+\title{Default labels}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
 Generate default facet labels.
 }
-\usage{labels_default(plot)}
+\usage{labels_default(plot, strip = plot$striplabel)}
 \arguments{
 \item{plot}{plot object}
+\item{strip}{}
 }
 \value{gList containg text grobs with appropriate viewports}
 \details{Facet labels are only displayed when there are facets in a particular

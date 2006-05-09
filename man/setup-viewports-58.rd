@@ -6,7 +6,7 @@
 \description{
 Setup matrix of viewports for a layout with given parameters
 }
-\usage{setup_viewports(type, rows=nrow(data), cols=ncol(data), data, offset=c(0,0), range)}
+\usage{setup_viewports(type, rows=nrow(data), cols=ncol(data), data, offset=c(0,0), range, angle=0)}
 \arguments{
 \item{type}{viewport type}
 \item{rows}{number of rows}
@@ -14,6 +14,7 @@ Setup matrix of viewports for a layout with given parameters
 \item{data}{optional data to compute rows and columns from}
 \item{offset}{offset from top and left}
 \item{range}{list containing x and y ranges}
+\item{angle}{}
 }
 
 \details{}

@@ -127,7 +127,7 @@ print(ggboxplot(p))
 If we want to see the actual points, we can overlay jitter points on top of the boxplot with \texttt{ggjitter}.  The jittering helps overcoming the overplotting problem associated with a categorical axis.
 
 <<fig=TRUE>>=
-print(ggboxplot(ggjitter(p)))
+print(ggjitter(ggboxplot(p)))
 @
 
 \section{Implementation}

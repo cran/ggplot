@@ -12,7 +12,7 @@ Creates a complete ggplot grob.
 \item{viewport}{viewports}
 \item{panels}{panels}
 \item{guides}{guides}
-\item{pretty}{should the plot be wrapped up inside the pretty accountrements (labels, legends, etc)}
+\item{pretty}{should the plot be wrapped up inside the pretty accoutrements (labels, legends, etc)}
 }
 
 \details{Delegates almost everything to its arguments.  Responsible for the

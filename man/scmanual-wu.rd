@@ -6,13 +6,14 @@
 \description{
 Create a manual scale
 }
-\usage{scmanual(plot = .PLOT, variable="x", breaks=NULL, labels=as.character(breaks), grob=function(x) grob_point(x, unique=FALSE))}
+\usage{scmanual(plot = .PLOT, variable="x", name="", breaks=NULL, labels=as.character(breaks), grob=function(x) grob_point(x, unique=FALSE))}
 \arguments{
 \item{plot}{plot object to add scale to}
 \item{variable}{variable to scale}
-\item{breaks}{numeric vector of break points}
-\item{labels}{character vector of break labels}
-\item{grob}{grob function to use when drawing legend}
+\item{name}{numeric vector of break points}
+\item{breaks}{character vector of break labels}
+\item{labels}{grob function to use when drawing legend}
+\item{grob}{}
 }
 
 \details{This scale function allows you complete control over the

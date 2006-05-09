@@ -6,7 +6,7 @@
 \description{
 Add line specified by slope and intercept to a plot
 }
-\usage{ggabline(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggabline(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -23,10 +23,10 @@ Add line specified by slope and intercept to a plot
 Other options:
 
 \itemize{
-\item intercept: intercept(s) of line
-\item slope: slope(s) of line
-\item colour: line colour
-\item size: line thickness, in mm
+\item \code{intercept}:intercept(s) of line
+\item \code{slope}:slope(s) of line
+\item \code{colour}:line colour
+\item \code{size}:line thickness, in mm
 }}
 
 \examples{p <- ggplot(mtcars, aesthetics=list(x = wt, y=mpg))

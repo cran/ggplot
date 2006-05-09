@@ -6,7 +6,7 @@
 \description{
 Add a path (a line between points in the order that they appear in the dataset) to the plot
 }
-\usage{ggpath(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggpath(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -17,12 +17,12 @@ Add a path (a line between points in the order that they appear in the dataset) 
 \details{Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
-\item id: identifier variable used to break up into multiple paths
-\item size: size of the line, in mm (see \code{\link{scsize}})
-\item colour: line colour (see \code{\link{sccolour}})
-\item line\_type: line style/type (see \code{\link{sclinetype}})
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
+\item \code{id}:identifier variable used to break up into multiple paths
+\item \code{size}:size of the line, in mm (see \code{\link{scsize}})
+\item \code{colour}:line colour (see \code{\link{sccolour}})
+\item \code{linetype}:line style/type (see \code{\link{sclinetype}})
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or

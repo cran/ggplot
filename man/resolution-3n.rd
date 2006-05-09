@@ -4,7 +4,7 @@
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
-Compute the "resolution" of a data vector, ie. what's the smallest non-zero
+Compute the "resolution" of a data vector, ie. what is the smallest non-zero
 }
 \usage{resolution(x)}
 \arguments{

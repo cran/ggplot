@@ -6,7 +6,7 @@
 \description{
 Add text to a plot
 }
-\usage{ggtext(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggtext(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -17,12 +17,12 @@ Add text to a plot
 \details{Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
-\item label: text label to display
-\item size: size of the text, as a multiple of the default size, (see \code{\link{scsize})}
-\item rotation: angle, in degrees, of text label
-\item colour: text colour (see \code{\link{sccolour})}
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
+\item \code{label}:text label to display
+\item \code{size}:size of the text, as a multiple of the default size, (see \code{\link{scsize})}
+\item \code{rotation}:angle, in degrees, of text label
+\item \code{colour}:text colour (see \code{\link{sccolour})}
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -34,7 +34,7 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item justification: justification of the text relative to its (x, y) location, see \code{\link{textGrob} for more details}
+\item \code{justification}:justification of the text relative to its (x, y) location, see \code{\link{textGrob} for more details}
 }}
 
 \examples{p <- ggplot(mtcars, aesthetics=list(x=wt, y=mpg, labels = rownames(mtcars)))

@@ -7,14 +7,15 @@
 \description{
 Scale a continuous variable along a colour gradient.
 }
-\usage{scgradient(plot = .PLOT, low='red', mid='white', high="black", midpoint=0, range=c(NA,NA))}
+\usage{scgradient(plot = .PLOT, name="", low='red', mid='white', high="black", midpoint=0, range=c(NA,NA))}
 \arguments{
 \item{plot}{plot object to add scale to}
-\item{low}{colour at low end of scale}
-\item{mid}{colour at middle of scale}
-\item{high}{colour at top of scale}
-\item{midpoint}{definition of midpoint}
-\item{range}{range to scale data to}
+\item{name}{colour at low end of scale}
+\item{low}{colour at middle of scale}
+\item{mid}{colour at top of scale}
+\item{high}{definition of midpoint}
+\item{midpoint}{range to scale data to}
+\item{range}{}
 }
 
 \details{This scale creates a continuous colour gradient from the

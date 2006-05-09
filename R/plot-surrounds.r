@@ -16,29 +16,72 @@
 # @arguments y axis label (character vector)
 # @arguments legend grobs (list of grobs)
 # @keyword hplot 
-prettyplot <- function(plot, title, xlabel, ylabel, legend=NULL) {
-	title <- textGrob(title, gp=gpar(fontsize=13), just=c("centre", "centre"))
-	xlabel <- textGrob(xlabel)
-	ylabel <- textGrob(ylabel, rot=90)
+prettyplot <- function(plot, plotgrob) {
+	position <- plot$legend.position
+	if (length(position) == 2) position <- "manual"
+	horiz <- any(c("top", "bottom") %in% position)
+	vert <-  any(c("left", "right") %in% position)
 	
-	if (!is.null(legend)) {
-		layout <- grid.layout(3, 3, 
-			widths = unit.c(unit(1, "grobwidth", ylabel), unit(1, "null"), unit(1, "grobwidth", legend)),
-			height = unit.c(unit(1.2, "grobheight", title), unit(1, "null"), unit(1, "grobheight", xlabel))
-		)
+	legend <- if (position != "none") legends(plot$scales, horiz) else NULL
+	if (is.null(legend)) position <- "none"
+	
+	gp <- gpar(fill=plot$background.fill, col=plot$background.colour)
+	title <- textGrob(plot$title, gp=gpar(cex=1.3, col=plot$background.colour), just=c("centre", "centre"))
+	xlabel <- textGrob(plot$xlabel, just=c("centre", "centre"), gp=gp)
+	ylabel <- textGrob(plot$ylabel, rot=90, just=c("centre", "centre"), gp=gp)
+	
+	widths <- switch(position, 
+		right =  unit.c(unit(2, "grobwidth", ylabel), unit(1, "null"), unit(1, "grobwidth", legend)),
+		left =   unit.c(unit(1, "grobwidth", legend), unit(2, "grobwidth", ylabel), unit(1, "null")), 
+		top =    ,
+		bottom = ,
+		manual = ,
+		none =   unit.c(unit(2, "grobwidth", ylabel), unit(1, "null")),
+	)
+	heights <- switch(position,
+		top =    unit.c(unit(2, "grobheight", title), unit(1, "grobheight", legend), unit(1, "null"), unit(2, "grobheight", xlabel)),
+		bottom = unit.c(unit(2, "grobheight", title), unit(1, "null"), unit(2, "grobheight", xlabel), unit(1, "grobheight", legend)),
+		right =  ,
+		left =   ,
+		manual = ,
+		none =   unit.c(unit(2, "grobheight", title), unit(1, "null"), unit(2, "grobheight", xlabel))
+	)
+
+	layout <- grid.layout(length(heights), length(widths), widths=widths, heights=heights)
+
+	lf <- frameGrob(layout, "pretty")
+	lf <- placeGrob(lf, rectGrob(gp=gp), row=1:length(heights), col=1:length(widths))
+
+	if (position == "right") {
+		lf <- placeGrob(lf, plotgrob, row=2,   col=2)
+		lf <- placeGrob(lf, legend, row=2, col=3)
+		lf <- placeGrob(lf, ylabel,  row=2,   col=1)
+		lf <- placeGrob(lf, xlabel,  row=3,   col=2)
+		lf <- placeGrob(lf, title,  row=1,   col=2)
+	} else if (position == "left") {
+		lf <- placeGrob(lf, plotgrob, row=2,   col=3)
+		lf <- placeGrob(lf, legend, row=2, col=1)
+		lf <- placeGrob(lf, ylabel,  row=2,   col=2)
+		lf <- placeGrob(lf, xlabel,  row=3,   col=3)
+		lf <- placeGrob(lf, title,  row=1,   col=3)
+	} else if (position == "top") {
+		lf <- placeGrob(lf, plotgrob, row=3,   col=2)
+		lf <- placeGrob(lf, legend, row=2, col=2)
+		lf <- placeGrob(lf, ylabel,  row=3,   col=1)
+		lf <- placeGrob(lf, xlabel,  row=4,   col=2)
+		lf <- placeGrob(lf, title,  row=1,   col=2)
+	} else if (position == "bottom") {
+		lf <- placeGrob(lf, plotgrob, row=2,   col=2)
+		lf <- placeGrob(lf, legend, row=4, col=2)
+		lf <- placeGrob(lf, ylabel,  row=2,   col=1)
+		lf <- placeGrob(lf, xlabel,  row=3,   col=2)
+		lf <- placeGrob(lf, title,  row=1,   col=2)
 	} else {
-		layout <- grid.layout(3, 2, 
-			widths = unit.c(unit(1, "grobwidth", ylabel), unit(1, "null")),
-			height = unit.c(unit(2, "grobheight", title), unit(1, "null"), unit(1, "grobheight", xlabel))
-		)
+		lf <- placeGrob(lf, plotgrob, row=2,   col=2)
+		lf <- placeGrob(lf, ylabel,  row=2,   col=1)
+		lf <- placeGrob(lf, xlabel,  row=3,   col=2)
+		lf <- placeGrob(lf, title,  row=1,   col=2)
 	}
 	
-	lf <- frameGrob(layout)
-	lf <- placeGrob(lf, plot,   row=2,   col=2)
-	if (!is.null(legend)) lf <- packGrob(lf, legend, row=2:3, col=3)
-	lf <- placeGrob(lf, title,  row=1,   col=2)
-	lf <- placeGrob(lf, xlabel,  row=3,   col=2)
-	lf <- placeGrob(lf, ylabel,  row=2,   col=1)
-
 	lf
 }

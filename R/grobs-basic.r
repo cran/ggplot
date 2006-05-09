@@ -12,32 +12,23 @@
 # @keyword hplot  
 # @keyword internal 
 # @value modified plot object 
-gg_add <- function(map, plot, aesthetics=list(), ..., data=plot$data) {
+gg_add <- function(map, plot, aesthetics=list(), ..., data=NULL) {
 	aesthetics <- substitute(aesthetics, parent.frame())
 	
-	new_aesthetics <- setdiff(names(uneval(aesthetics)), input(plot$scales))
-	plot <- add_defaults(plot, new_aesthetics)
+	plot <- add_defaults(plot, uneval(aesthetics))
 	do.call(plot_add, list(plot=plot, data=data, map=map, aesthetics=aesthetics, ...))
 }
 
-# Grob grid
-# Build up a subtle background grid 
+# Aesthetic defaults
+# Convenience method for setting aesthetic defaults
 # 
-# @keyword hplot
+# @arguments values from aesthetic mappings
+# @arguments defaults
+# @arguments user specified values
 # @keyword internal 
-# @arguments not used 
-# @arguments x axis lines
-# @arguments y axis lines 
-# @arguments not used
-grob_grid <- function(aesthetics, xbreaks, ybreaks, ...) {
-	gp <- gpar(fill=ggplot.options()$grid.fill, col=ggplot.options()$grid.col)
-	gTree(children = gList(
-		rectGrob(gp=gpar(fill=ggplot.options()$grid.fill, col=ggplot.options()$grid.col, lwd=4)),
-		grid.segments(xbreaks, unit(0, "npc"), xbreaks, unit(1, "npc"), gp = gp, default.units="native"),
-		grid.segments(unit(0, "npc"), ybreaks, unit(1, "npc"), ybreaks, gp = gp, default.units="native")
-	))	
+aesdefaults <- function(x, y, ...) {
+	defaults(x, updatelist(y, list(...)))
 }
-
 
 # Grob function: point
 # Add points to a plot
@@ -45,11 +36,11 @@ grob_grid <- function(aesthetics, xbreaks, ybreaks, ...) {
 # Aesthetic mappings that this grob function understands:
 #
 # \itemize{
-#   \item x: x position (required)
-#   \item y: y position (required)
-#   \item size: size of the point, in mm (see \code{\link{scsize})}
-#   \item shape: shape of the glyph used to draw the point (see \code{\link{scshape})}
-#   \item colour: point colour (see \code{\link{sccolour})}
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{size}:size of the point, in mm (see \code{\link{scsize})}
+#   \item \code{shape}:shape of the glyph used to draw the point (see \code{\link{scshape})}
+#   \item \code{colour}:point colour (see \code{\link{sccolour})}
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -61,7 +52,7 @@ grob_grid <- function(aesthetics, xbreaks, ybreaks, ...) {
 # Other options:
 # 
 # \itemize{
-#   \item unique: if \code{TRUE, draw at most one point at each unique location}
+#   \item \code{unique}:if \code{TRUE, draw at most one point at each unique location}
 # }
 # 
 # @arguments the plot object to modify
@@ -80,16 +71,16 @@ grob_grid <- function(aesthetics, xbreaks, ybreaks, ...) {
 #X ggpoint(p, list(x=cyl, colour=cyl))
 #X p <- ggplot(mtcars)
 #X ggpoint(p, aesthetics=list(x=wt, y=mpg))
-ggpoint <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
+ggpoint <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("point", plot, aesthetics, ..., data=data)
 }
 grob_point <- function(aesthetics, unique=TRUE, ...) {
   if (length(aesthetics$x) + length(aesthetics$y) == 0) return();
-	aesthetics <- defaults(aesthetics, list(colour="black", size=2, shape=16, rotation=0))
+	aesthetics <- aesdefaults(aesthetics, list(colour="black", size=2, shape=16, rotation=0), ...)
   
 	if (unique) aesthetics <- unique(data.frame(aesthetics))
 	if (length(aesthetics$x) + length(aesthetics$y)==0) return()
-		
+	
 	pointsGrob(
 		aesthetics$x, aesthetics$y, size=unit(aesthetics$size, "mm"), pch=aesthetics$shape, gp = gpar(col=as.character(aesthetics$colour), rot=aesthetics$rotation)
 	)
@@ -107,10 +98,10 @@ grob_point <- function(aesthetics, unique=TRUE, ...) {
 # Other options:
 # 
 # \itemize{
-#   \item intercept: intercept(s) of line
-#   \item slope: slope(s) of line
-#   \item colour: line colour
-#   \item size: line thickness, in mm
+#   \item \code{intercept}:intercept(s) of line
+#   \item \code{slope}:slope(s) of line
+#   \item \code{colour}:line colour
+#   \item \code{size}:line thickness, in mm
 # }
 # 
 # @arguments the plot object to modify
@@ -122,20 +113,20 @@ grob_point <- function(aesthetics, unique=TRUE, ...) {
 #X ggabline(ggpoint(p), intercept=30, slope=-5)
 #X ggabline(ggpoint(p), intercept=c(30,40,50), slope=-5)
 #X ggsmooth(ggpoint(p), method=lm, formula=y~x) 
-ggabline <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
+ggabline <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("abline", plot, aesthetics, ..., data=data)
 }
-grob_abline <- function(aesthetics, intercept=0, slope=1, colour="grey", size=1, ...) {
+grob_abline <- function(aesthetics, intercept=0, slope=1, ...) {
 	xrange <- range(range(aesthetics$x, na.rm=TRUE), c(-100,100))
 
-	build_line <- function(intercept, slope, colour, size) {
+	build_line <- function(intercept, slope) {
 		y <- function(x) x * slope + intercept
-		list(x=xrange, y=y(xrange), colour=colour, size=size)
+		list(x=xrange, y=y(xrange))
 	}
 	
-	aesthetics <- mapply(build_line, intercept, slope, colour, size, SIMPLIFY=FALSE)
+	aesthetics <- mapply(build_line, intercept, slope, SIMPLIFY=FALSE)
 	gTree(children = do.call(gList,
-		lapply(aesthetics, grob_line)
+		lapply(aesthetics, grob_line, ...)
 	))
 }
 
@@ -149,11 +140,11 @@ grob_abline <- function(aesthetics, intercept=0, slope=1, colour="grey", size=1,
 # Aesthetic mappings that this grob function understands:
 #
 # \itemize{
-#   \item x: x position (required)
-#   \item y: y position (required)
-#   \item size: size of the point, in mm (see \code{\link{scsize})}
-#   \item shape: shape of the glyph used to draw the point (see \code{\link{scshape})}
-#   \item colour: point colour (see \code{\link{sccolour})}
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{size}:size of the point, in mm (see \code{\link{scsize})}
+#   \item \code{shape}:shape of the glyph used to draw the point (see \code{\link{scshape})}
+#   \item \code{colour}:point colour (see \code{\link{sccolour})}
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -165,8 +156,8 @@ grob_abline <- function(aesthetics, intercept=0, slope=1, colour="grey", size=1,
 # Other options:
 # 
 # \itemize{
-#   \item xjitter: degree of jitter in x direction, see \code{\link{jitter} for details, defaults to 1}
-#   \item yjitter: degree of jitter in y direction, see \code{\link{jitter} for details, defaults to 0}
+#   \item \code{xjitter}:degree of jitter in x direction, see \code{\link{jitter} for details, defaults to 1}
+#   \item \code{yjitter}:degree of jitter in y direction, see \code{\link{jitter} for details, defaults to 0}
 # }
 # 
 # @arguments the plot object to modify
@@ -176,14 +167,14 @@ grob_abline <- function(aesthetics, intercept=0, slope=1, colour="grey", size=1,
 # @keyword hplot
 #X p <- ggplot(movies, aes=list(x=mpaa, y=rating))
 #X ggjitter(p)
-#X ggboxplot(ggjitter(p))
-#X ggboxplot(ggjitter(p), xjitter=2)
-#X ggboxplot(ggjitter(p), yjitter=1)
-ggjitter <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
+#X ggjitter(ggboxplot(p))
+#X ggjitter(ggboxplot(p), xjitter=2)
+#X ggjitter(ggboxplot(p), yjitter=1)
+ggjitter <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("jitter", plot, aesthetics, ..., data=data)
 }
 grob_jitter <- function(aesthetics, xjitter=1, yjitter=0, ...) {
-	aesthetics <- defaults(aesthetics, list(colour="black", size=2, shape=16, rotation=0))
+	aesthetics <- aesdefaults(aesthetics, list(), ...)
 	aesthetics$x <- jitter(aesthetics$x, xjitter)
 	aesthetics$y <- jitter(aesthetics$y, yjitter)
 
@@ -196,12 +187,12 @@ grob_jitter <- function(aesthetics, xjitter=1, yjitter=0, ...) {
 # Aesthetic mappings that this grob function understands:
 #
 # \itemize{
-#   \item x: x position (required)
-#   \item y: y position (required)
-#   \item label: text label to display
-#   \item size: size of the text, as a multiple of the default size, (see \code{\link{scsize})}
-#   \item rotation: angle, in degrees, of text label
-#   \item colour: text colour (see \code{\link{sccolour})}
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{label}:text label to display
+#   \item \code{size}:size of the text, as a multiple of the default size, (see \code{\link{scsize})}
+#   \item \code{rotation}:angle, in degrees, of text label
+#   \item \code{colour}:text colour (see \code{\link{sccolour})}
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -213,7 +204,7 @@ grob_jitter <- function(aesthetics, xjitter=1, yjitter=0, ...) {
 # Other options:
 # 
 # \itemize{
-#   \item justification: justification of the text relative to its (x, y) location, see \code{\link{textGrob} for more details}
+#   \item \code{justification}:justification of the text relative to its (x, y) location, see \code{\link{textGrob} for more details}
 # }
 # 
 # @arguments the plot object to modify
@@ -226,11 +217,11 @@ grob_jitter <- function(aesthetics, xjitter=1, yjitter=0, ...) {
 #X ggtext(p, list(size=wt))
 #X scsize(ggtext(p, list(size=wt)), c(0.5, 1.5))
 #X ggtext(p, list(colour=cyl))
-ggtext <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
+ggtext <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("text", plot, aesthetics, ..., data=data)
 }
 grob_text  <- function(aesthetics, justification="centre", ...) {
-	aesthetics <- defaults(aesthetics, list(colour="black", size=1, rotation=0))
+	aesthetics <- aesdefaults(aesthetics, list(colour="black", size=1, rotation=0), ...)
 	textGrob(aesthetics$label, aesthetics$x, aesthetics$y, default.units="native", just=justification, rot=aesthetics$rotation, gp=gpar(col=as.character(aesthetics$colour), cex=aesthetics$size))
 }
 
@@ -241,12 +232,12 @@ grob_text  <- function(aesthetics, justification="centre", ...) {
 # Aesthetic mappings that this grob function understands:
 #
 # \itemize{
-#   \item x: x position (required)
-#   \item y: y position (required)
-#   \item id: identifier variable used to break up into multiple paths
-#   \item size: size of the line, in mm (see \code{\link{scsize}})
-#   \item colour: line colour (see \code{\link{sccolour}})
-#   \item line\_type: line style/type (see \code{\link{sclinetype}})
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{id}:identifier variable used to break up into multiple paths
+#   \item \code{size}:size of the line, in mm (see \code{\link{scsize}})
+#   \item \code{colour}:line colour (see \code{\link{sccolour}})
+#   \item \code{linetype}:line style/type (see \code{\link{sclinetype}})
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -277,13 +268,15 @@ grob_text  <- function(aesthetics, justification="centre", ...) {
 #X ggpath(p)
 #X ggpath(p, list(id=cyl))
 #x ggpath(p, list(id=cyl, linetype=cyl))
-ggpath <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
+ggpath <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("path", plot, aesthetics, ..., data=data)
 }
 grob_path  <- function(aesthetics, ...) {
   if (length(aesthetics$x) + length(aesthetics$y) == 0) return();
-	aesthetics <- defaults(aesthetics, list(id=1, colour="black", size=1, linetype=1))
-	
+	aesthetics <- aesdefaults(aesthetics, list(id=1, colour="black", size=1, linetype=1), ...)
+
+	longest <- max(sapply(aesthetics, length))
+	aesthetics <- lapply(aesthetics, rep, length=longest)
 	data <- data.frame(aesthetics)
 
 	polygonGrob()
@@ -303,12 +296,12 @@ grob_path  <- function(aesthetics, ...) {
 # Aesthetic mappings that this grob function understands:
 #
 # \itemize{
-#   \item x: x position (required)
-#   \item y: y position (required)
-#   \item id: identifier variable used to break up into multiple polygons
-#   \item size: size of the outline, in mm (see \code{\link{scsize})}
-#   \item colour: outline colour (see \code{\link{sccolour})}
-#   \item fill: internal colour (see \code{\link{sccolour})}
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{id}:identifier variable used to break up into multiple polygons
+#   \item \code{size}:size of the outline, in mm (see \code{\link{scsize})}
+#   \item \code{colour}:outline colour (see \code{\link{sccolour})}
+#   \item \code{fill}:internal colour (see \code{\link{sccolour})}
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -328,13 +321,13 @@ grob_path  <- function(aesthetics, ...) {
 # @arguments other options, see details for more information
 # @arguments data source, if not specified the plot default will be used
 # @keyword hplot 
-ggpolygon <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
+ggpolygon <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("polygon", plot, aesthetics, ..., data=data)
 }
 grob_polygon  <- function(aesthetics, ...) {
-	aesthetics <- defaults(aesthetics, list(id=1, colour="black", size=1, pattern=1))
+	aesthetics <- aesdefaults(aesthetics, list(id=1, colour="black", size=1, pattern=1), ...)
 	
-	polygonGrob(aesthetics$x, aesthetics$y, default.units="native", gp=gpar(col=aesthetics$colour, fill=aesthetics$fill, lwd=aesthetics$lwd, pattern=aesthetics$pattern))
+	polygonGrob(aesthetics$x, aesthetics$y, default.units="native", gp=gpar(col=as.character(aesthetics$colour), fill=as.character(aesthetics$fill), lwd=aesthetics$lwd, pattern=aesthetics$pattern))
 }
 
 # Grob function: line
@@ -343,12 +336,12 @@ grob_polygon  <- function(aesthetics, ...) {
 # Aesthetic mappings that this grob function understands:
 #
 # \itemize{
-#   \item x: x position (required)
-#   \item y: y position (required)
-#   \item id: identifier variable used to break up into multiple paths
-#   \item size: size of the line, in mm (see \code{\link{scsize}})
-#   \item colour: line colour (see \code{\link{sccolour}})
-#   \item line\_type: line style/type (see \code{\link{sclinetype}})
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{id}:identifier variable used to break up into multiple paths
+#   \item \code{size}:size of the line, in mm (see \code{\link{scsize}})
+#   \item \code{colour}:line colour (see \code{\link{sccolour}})
+#   \item \code{linetype}:line style/type (see \code{\link{sclinetype}})
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -373,14 +366,14 @@ grob_polygon  <- function(aesthetics, ...) {
 #X 	data.frame(rating=round(df$rating[1]), year = as.numeric(names(nums)), number=as.vector(nums))
 #X }))
 #X p <- ggplot(mry, aesthetics = list(x=year, y=number, id=rating))
-#X ggpath(p)
+#X ggline(p)
 #X ggpath(p, list(size=rating))
 #X ggpath(p, list(colour=rating))
-ggline <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
+ggline <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("line", plot, aesthetics, ..., data=data)
 }
 grob_line  <- function(aesthetics, ...) {
-  aesthetics <- defaults(aesthetics, list(id=1,  colour="black", size=1, linetype=1))
+  aesthetics <- aesdefaults(aesthetics, list(id=1,  colour="black", size=1, linetype=1), ...)
 
   if (length(aesthetics$x) == 1 ) {
     return(linesGrob(x = unit(c(0, 1), "npc"), y=unit(c(0.5, 0.5), "npc"), gp=gpar(col=as.character(aesthetics$colour), lwd=aesthetics$size, lty=aesthetics$linetype)))
@@ -391,50 +384,16 @@ grob_line  <- function(aesthetics, ...) {
 	grob_path(aesthetics)
 }
 
-# Area grob
-#
-#
-# @arguments x positions
-# @arguments y positions
-# @arguments id variable used to separate observations into different areas
-# @arguments colour
-# @arguments pattern
-# @arguments ...
-# @keyword hplot
-# @keyword internal 
-ggarea <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
-	gg_add("area", plot, aesthetics, ..., data=data)
-}
-grob_area  <- function(aesthetics, ...) {
-	aesthetics <- defaults(aesthetics, list(id=1, colour="black", pattern=1))
-
-	data <- data.frame(aesthetics$x, aesthetics$y, aesthetics$id, aesthetics$colour, aesthetics$pattern)
-	data <- data[order(data$id, data$x), ]
-
-	poly <- function(data) {
-		n <- nrow(data)
-		with(data, 
-			polygonGrob(c(min(x), x, max(x)), c(0, y, 0), default.units="native", gp=gpar(fill=as.character(colour)))
-		)
-	}
-	segs <- by(data, data$id, poly)
-	
-	do.call(gList, segs)
-}
-
-# Grob function: rectangle
-# Add rectangles to a plot
-# 
-# The default arguments will draw a barchart.
+# Grob function: ribbon
+# Add a ribbon to the plot
 # 
 # Aesthetic mappings that this grob function understands:
 #
 # \itemize{
-#   \item x: x position (required)
-#   \item y: y position (required)
-#   \item width: width of the rectangle (required)
-#   \item height: height of the rectangle (required)
-#   \item fill: fill colour (see \code{\link{sccolour})}
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{id}:identifier variable used to break up into multiple paths
+#   \item \code{colour}:line colour (see \code{\link{sccolour}})
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -446,8 +405,7 @@ grob_area  <- function(aesthetics, ...) {
 # Other options:
 # 
 # \itemize{
-#   \item justification: justification of the bar relative to its (x, y) location, see \code{\link{rectGrob} for more details}
-#   \item colour: a character vector describing the line colour}
+#   \item none
 # }
 # 
 # @arguments the plot object to modify
@@ -455,17 +413,229 @@ grob_area  <- function(aesthetics, ...) {
 # @arguments other options, see details for more information
 # @arguments data source, if not specified the plot default will be used
 # @keyword hplot
-#X p <- ggplot(mtcars, aes=list(y=mpg, x=factor(cyl)))
-#X ggrect(p)
-#X ggrect(p, list(fill=mpg))
-#X pscontinuous(ggrect(p, list(fill=mpg), colour="black"), "y", range=c(0,NA))
-ggrect <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
+#X mry <- do.call(rbind, by(movies, round(movies$rating), function(df) { 
+#X 	nums <- tapply(df$length, df$year, length)
+#X 	data.frame(rating=round(df$rating[1]), year = as.numeric(names(nums)), number=as.vector(nums))
+#X }))
+#X p <- ggplot(mry, aesthetics = list(x=year, y=number, id=rating))
+#X ggribbon(p, aes=list(upper=number+5, lower=number-5), fill="white", colour=NA)
+#X ggribbon(p, aes=list(upper=number*1.1, lower=number*0.9), fill="white", colour=NA)
+#X ggribbon(p, aes=list(upper=number+5, lower=number-5), fill="pink")
+#X ggribbon(p, aes=list(upper=number+5, lower=number-5, fill=rating), colour=NA)
+#X scfillgradient(ggribbon(p, aes=list(upper=number+5, lower=number-5, fill=rating), colour=NA), midpoint=5, low="red", high="darkgreen")
+ggribbon <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
+	gg_add("ribbon", plot, aesthetics, ..., data=data)
+}
+pre_ribbon <- function(data, ...) {
+	data$y <- NULL
+	upper <- rename(data[, "lower" != names(data)], c(upper="y"))
+	lower <- rename(data[nrow(data):1, "upper" != names(data)], c(lower="y"))
+
+	data <- rbind(upper, lower)
+	data <- data.frame(data)
+  data <- data[order(data$id), ]
+
+	data
+	
+}
+grob_ribbon <- function(aesthetics, ...) {
+	aesthetics <- aesdefaults(aesthetics, list(colour=NA, fill="grey60", id=1), ...)
+	aesthetics <- as.data.frame(aesthetics)
+	grob_group(aesthetics, grob=grob_polygon, ...)
+}
+
+# Grob function: area
+# Add an filled area to a plot.
+#
+# Aesthetic mappings that this grob function understands:
+#
+# \itemize{
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{id}:identifier variable used to break up into multiple paths
+#   \item \code{colour}:line colour (see \code{\link{sccolour}})
+#   \item \code{fill}:fill colour (see \code{\link{sccolour}})
+#   \item \code{linetype}:line style/type (see \code{\link{sclinetype}})
+# }
+# 
+# These can be specified in the plot defaults (see \code{\link{ggplot}}) or
+# in the \code{aesthetics} argument.  If you want to modify the position 
+# of the points or any axis options, you will need to add a position scale to
+# the plot.  These functions start with \code{ps}, eg. 
+# \code{\link{pscontinuous}} or \code{\link{pscategorical}}
+# 
+# Other options:
+# 
+# \itemize{
+#   \item none
+# }
+# 
+# @arguments x positions
+# @arguments y positions
+# @arguments id variable used to separate observations into different areas
+# @arguments colour
+# @arguments pattern
+# @arguments ...
+# @keyword hplot
+# @keyword internal 
+#X huron <- data.frame(year = 1875:1972, level = as.vector(LakeHuron))
+#X p <- ggplot(huron, aes=list(y=level, x=year))
+#X ggarea(p)
+#X ggarea(p, colour="black")
+#X ggline(ggarea(p)) # better
+#X qplot(year, level, data=huron, type=c("area", "line"))
+#X ggarea(p, fill=alpha("grey80", 0.5))
+#X pscontinuous(ggarea(p), "y", range=c(0,NA))
+ggarea <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
+	gg_add("area", plot, aesthetics, ..., data=data)
+}
+grob_area  <- function(aesthetics, ...) {
+	aesthetics <- aesdefaults(aesthetics, list(id=1, fill="grey80", colour=NA, line_type=1), ...)
+
+	data <- as.data.frame(aesthetics)
+	data <- data[order(data$id, data$x), ]
+
+	poly <- function(data) {
+		n <- nrow(data)
+		with(data, 
+			polygonGrob(c(min(x), x, max(x)), c(0, y, 0), default.units="native", gp=gpar(fill=as.character(fill), col=as.character(colour), lty=line_type))
+		)
+	}
+	segs <- by(data, data$id, poly)
+	
+	gTree(children=do.call(gList, segs))
+}
+
+# Grob function: rectangle
+# Add rectangles to a plot
+# 
+# This grob provides the basic functionality required by
+# \code{\link{ggbar}} and \code{\link{ggtile}}.  You should probably
+# not call it yourself
+# 
+# Aesthetic mappings that this grob function understands:
+#
+# \itemize{
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{width}:width of the rectangle (required)
+#   \item \code{height}:height of the rectangle (required)
+#   \item \code{fill}:fill colour (see \code{\link{sccolour})}
+# }
+# 
+# These can be specified in the plot defaults (see \code{\link{ggplot}}) or
+# in the \code{aesthetics} argument.  If you want to modify the position 
+# of the points or any axis options, you will need to add a position scale to
+# the plot.  These functions start with \code{ps}, eg. 
+# \code{\link{pscontinuous}} or \code{\link{pscategorical}}
+# 
+# Other options:
+# 
+# \itemize{
+#   \item \code{justification}:justification of the bar relative to its (x, y) location, see \code{\link{rectGrob} for more details}
+# }
+# 
+# @arguments the plot object to modify
+# @arguments named list of aesthetic mappings, see details for more information
+# @arguments other options, see details for more information
+# @arguments data source, if not specified the plot default will be used
+# @keyword hplot
+# @seealso \code{\link{ggbar}}, \code{\link{ggtile}}
+ggrect <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("rect", plot, aesthetics, ..., data=data)
 }
-grob_rect   <- function(aesthetics, justification = c("centre","top"), colour="white", ...) {
-	aesthetics <- defaults(aesthetics, list(fill="grey50", pattern=1, height=aesthetics$y, width=resolution(aesthetics$x)*0.9))
+grob_rect   <- function(aesthetics, justification = c("centre","top"), ...) {
+	aesthetics <- aesdefaults(aesthetics, list(fill="grey50", height=aesthetics$y, width=resolution(aesthetics$x)*0.9, colour="NA"), ...)
+	rectGrob(aesthetics$x, aesthetics$y, width=aesthetics$width, height=aesthetics$height, default.units="native", just=justification, gp=gpar(col=as.character(aesthetics$colour), fill=as.character(aesthetics$fill)))
+}
 
-	rectGrob(aesthetics$x, aesthetics$y, width=aesthetics$width, height=aesthetics$height, default.units="native", just=justification, gp=gpar(col=colour, fill=as.character(aesthetics$fill)))
+
+# Grob function: bars
+# Add bars to a plot
+# 
+# The bar grob produces bars from the y-position to the y=0.
+# 
+# Aesthetic mappings that this grob function understands:
+#
+# \itemize{
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{fill}:fill colour (see \code{\link{sccolour})}
+# }
+# 
+# These can be specified in the plot defaults (see \code{\link{ggplot}}) or
+# in the \code{aesthetics} argument.  If you want to modify the position 
+# of the points or any axis options, you will need to add a position scale to
+# the plot.  These functions start with \code{ps}, eg. 
+# \code{\link{pscontinuous}} or \code{\link{pscategorical}}
+# 
+# Other options:
+# 
+# \itemize{
+#   \item \code{avoid}: how should overplotting be dealt with? 
+#      "none" (default) = do nothing, "stack" = stack bars on top of one another,
+#      "dodge" = dodge bars from side to side
+#		\item \code{sort}: Should the values of the bars be sorted
+#  }
+# 
+# @arguments the plot object to modify
+# @arguments named list of aesthetic mappings, see details for more information
+# @arguments other options, see details for more information
+# @arguments data source, if not specified the plot default will be used
+# @keyword hplot
+# @seealso \code{\link{ggrect}}
+#X cyltab <- as.data.frame(table(cyl=mtcars$cyl))
+#X p <- ggplot(cyltab, aes=list(y=Freq, x=cyl))
+#X ggbar(p)
+#X ggbar(p, fill="white", colour="red")
+#X #Can also make a stacked bar chart
+#X p <- ggplot(mtcars, aes=list(y=1, x=factor(cyl)))
+#X ggbar(p, avoid="stack")
+#X ggbar(p, avoid="stack", colour="red") # Made up of multiple small bars
+#X p <- ggplot(mtcars, aes=list(y=mpg, x=factor(cyl)))
+#X ggbar(p, avoid="stack")
+#X ggbar(p, avoid="dodge", sort=TRUE)
+#X ggbar(p, aes=list(fill=mpg), avoid="dodge", sort=TRUE)
+#X ggbar(p, avoid="stack", sort=TRUE)
+ggbar <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
+	plot <- pscontinuous(plot, "y", range=c(0,NA), expand=c(0.05,0))
+	gg_add("bar", plot, aesthetics, ..., data=data)
+}
+
+pre_bar <- function(data, avoid="none", sort=FALSE, direction="vertical", ...) {
+	if (direction != "vertical") data[c("x","y")] <- data[c("y","x")]
+
+	data$width <- resolution(data$x) * 0.9
+	if (avoid == "none") return(data)
+	
+	if (sort) {
+		data <- data[order(data$x, data$y), ]
+	} else {
+		data <- data[order(data$x), ]
+	}
+	
+	if (avoid == 'stack') {
+		data$y <- unlist(tapply(data$y, data$x, cumsum))
+		data <- data[order(data$y, decreasing=TRUE), ]
+	} else if (avoid == 'dodge') {
+		data$width <- data$width / max(tapply(data$y, data$x, length))
+	}
+	if (direction != "vertical") data[c("x","y")] <- data[c("y","x")]
+	data
+}
+
+grob_bar   <- function(aesthetics, avoid="none", direction="vertical", ...) {
+	aesthetics <- aesdefaults(aesthetics, list(fill="grey50", colour="NA"), ...)
+	aesthetics$height <- aesthetics$y
+
+	if (direction != "vertical") aesthetics[c("height", "width")] <- aesthetics[c("width", "height")]
+	if (avoid == "dodge") {
+		n <- max(tapply(aesthetics$y, aesthetics$x, length))
+		aesthetics$x <- as.numeric(aesthetics$x) + unlist(tapply(aesthetics$y, aesthetics$x, function(x) (1:n - n/2)[1:length(x)])) * aesthetics$width - aesthetics$width / 2 
+	}
+
+
+	rectGrob(aesthetics$x, aesthetics$y, width=aesthetics$width, height=aesthetics$height, default.units="native", just=c("centre","top"), gp=gpar(col=as.character(aesthetics$colour), fill=as.character(aesthetics$fill)))
 }
 
 
@@ -479,11 +649,11 @@ grob_rect   <- function(aesthetics, justification = c("centre","top"), colour="w
 # Aesthetic mappings that this grob function understands:
 #
 # \itemize{
-#   \item x: x position (required)
-#   \item y: y position (required)
-#   \item width: width of the rectangle
-#   \item height: height of the rectangle
-#   \item fill: fill colour (see \code{\link{sccolour})}
+#   \item \code{x}:x position (required)
+#   \item \code{y}:y position (required)
+#   \item \code{width}:width of the rectangle
+#   \item \code{height}:height of the rectangle
+#   \item \code{fill}:fill colour (see \code{\link{sccolour})}
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -519,7 +689,7 @@ grob_rect   <- function(aesthetics, justification = c("centre","top"), colour="w
 #X ggtile(ggplot(pp(100, r=2), aes=list(x=x,y=y,fill=z)))
 #X p <- ggplot(pp(20)[sample(20*20, size=200),], aes=list(x=x,y=y,fill=z))
 #X ggtile(p)
-ggtile <- function(plot = .PLOT, aesthetics=list(), ..., data=plot$data) {
+ggtile <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("tile", plot, aesthetics, ..., data=data)
 }
 grob_tile  <- function(aesthetics, ...) {
@@ -528,20 +698,21 @@ grob_tile  <- function(aesthetics, ...) {
 		return(rectGrob(gp=gpar(col=NA, fill=as.character(colour))))
 	}
 
-	aesthetics <- defaults(aesthetics, list(
+	aesthetics <- aesdefaults(aesthetics, list(
 	  width=resolution(aesthetics$x), 
-	  height=resolution(aesthetics$y)
-	))
+	  height=resolution(aesthetics$y),
+		colour = NA
+	), ...)
 	
-	grob_rect(aesthetics, colour="NA", justification=c("centre","centre"))
+	grob_rect(aesthetics, justification=c("centre","centre"))
 }
 
 # Resolution
-# Compute the "resolution" of a data vector, ie. what's the smallest non-zero
+# Compute the "resolution" of a data vector, ie. what is the smallest non-zero
 # distance between adjacent values.
 #
 # @arguments numeric vector
 # @seealso \code{\link{ggtile}}
 # @keyword hplot
 # @keyword internal 
-resolution <- function(x) min(diff(sort(unique(x))))
+resolution <- function(x) min(diff(sort(unique(as.numeric(x)))))

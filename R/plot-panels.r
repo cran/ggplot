@@ -32,5 +32,17 @@ plot_grob_matrix <- function(gm, type=deparse(substitute(gm))) {
 # @keyword hplot
 # @keyword internal
 panels_default <- function(plot, grobs) {
+	nr <- dim(grobs[[1]])[1]
+	nc <- dim(grobs[[1]])[2]
+
+	border <- gTree(children=gList(rectGrob(gp=gpar(col=ggopt()$grid.col, lwd=3, fill=NA))))
+	borders <- matrix(rep(list(border), prod(dim(grobs[[1]]))), ncol = dim(grobs[[1]])[2])
+	pg <- expand.grid(1:nr, 1:nc)
+	borders <- matrix(mapply(function(x,y) {
+		editGrob(borders[[x,y]], name=paste("border", x, "-", y,  sep=""))
+	}, pg[,1], pg[,2], SIMPLIFY=FALSE), ncol=nc)
+
+	grobs <- append(grobs, list(borders))
+
 	do.call(gList, unlist(lapply(grobs, plot_grob_matrix, type="panel"), recursive=FALSE))
 }

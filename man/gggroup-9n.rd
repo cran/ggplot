@@ -6,7 +6,7 @@
 \description{
 Create multiple of grobs based on id aesthetic.
 }
-\usage{gggroup(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{gggroup(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -24,9 +24,9 @@ how the data is broken down.
 Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
-\item id:
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
+\item \code{id}:
 \item any other grobs used by the grob function you choose
 }
 
@@ -39,7 +39,7 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item grob: grob function to use for subgroups
+\item \code{grob}:grob function to use for subgroups
 \item anything else used by the grob function you choose
 }}
 

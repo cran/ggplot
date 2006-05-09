@@ -20,11 +20,11 @@ viewport_default <- function(plot, guides=guides_basic(plot), scales=scales_defa
 	gm <- plot$facet
 	row.labels <- rrownames(gm)
 	col.labels <- rcolnames(gm)
-
+	
 	rows <- nrow(gm) + ncol(col.labels) + 1
 	cols <- ncol(gm) + ncol(row.labels) + 1
 	
-	layout <- plot_layout(gm, rows, cols, row.labels, col.labels, guides$axes_h, guides$axes_v)
+	layout <- plot_layout(gm, rows, cols, row.labels, col.labels, guides$axes_h, guides$axes_v, plot$aspect.ratio)
 	range <- range(scales)
 	
 	viewports <- do.call(vpList, c(
@@ -48,15 +48,19 @@ viewport_default <- function(plot, guides=guides_basic(plot), scales=scales_defa
 # @arguments data frame of column labels
 # @arguments matrix of horizontal axis grobs
 # @arguments matrix of vertical axis grobs
+# @arguments aspect ratio of cells (defaults to not preserved)
 # @keyword hplot 
 # @keyword internal
-plot_layout <- function(gm, rows, cols, row.labels, col.labels, axes_h, axes_v ) {
-	cell.widths   <- unit.rep(unit(1, "null"), ncol(gm))
-	cell.heights  <- unit.rep(unit(1, "null"), nrow(gm))
-	label.widths  <- unit.rep(unit(1, "lines"), ncol(row.labels))
-	label.heights <- unit.rep(unit(1, "lines"), ncol(col.labels))
+plot_layout <- function(gm, rows, cols, row.labels, col.labels, axes_h, axes_v, aspect_ratio) {
+	respect <- !is.null(aspect_ratio)
+	if (is.null(aspect_ratio)) aspect_ratio <- 1
+	cell.widths   <- rep(unit(1, "null"), ncol(gm))
+	cell.heights  <- rep(unit(1 * aspect_ratio, "null"), nrow(gm))
+	label.widths  <- rep(unit(1, "lines"), ncol(row.labels))
+	label.heights <- rep(unit(1, "lines"), ncol(col.labels))
 
 	grid.layout(rows, cols, 
+		respect = respect,
 		widths =  unit.c(sum(layout.widths(viewport.layout(axes_v[[1]]$childrenvp$parent))), cell.widths, label.widths),
 		heights = unit.c(label.heights, cell.heights, sum(layout.heights(viewport.layout(axes_h[[1]]$childrenvp$parent))))
 	)
@@ -104,8 +108,8 @@ vp_name <- function(row, col, type) {
 # @arguments list containing x and y ranges
 # @keyword hplot 
 # @keyword internal
-setup_viewports <- function(type, rows=nrow(data), cols=ncol(data), data, offset=c(0,0), range) {
-	vp <- function(x,y) viewport(name=vp_name(x,y, type), xscale=range$x, yscale=range$y, layout.pos.row=x  + offset[1], layout.pos.col=y  + offset[2], clip="on")
+setup_viewports <- function(type, rows=nrow(data), cols=ncol(data), data, offset=c(0,0), range, angle=0) {
+	vp <- function(x,y) viewport(name=vp_name(x,y, type), xscale=range$x, yscale=range$y, layout.pos.row=x  + offset[1], layout.pos.col=y  + offset[2], clip="on", angle=angle)
 	pos <- expand.grid(x=(1:rows), y=(1:cols))
 	do.call(vpList, mapply(vp, pos$x, pos$y, SIMPLIFY=FALSE))
 }

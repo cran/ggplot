@@ -49,7 +49,7 @@ preprocess <- function(gp, data) {
 	if (is.list(data) && !is.data.frame(data)) data <- data[[1]]
 	name <- paste("pre", gp$name, sep="_")
 	if (!exists(name, mode="function")) return(data)
-	do.call(name, c(data=list(data), gp$params))
+	do.call(name, c(data=list(as.name("data")), gp$params))
 }
 
 # Preprocess all panels in grob promise
@@ -57,9 +57,9 @@ preprocess <- function(gp, data) {
 # @keyword manip 
 # @keyword internal
 preprocess_all <- function(gp, plot) {
-  aesthetics <- defaults(gp$aesthetics, plot$aesthetics)
-  gp$data <- build_df(plot, gp$data, aesthetics)
-  
+	aesthetics <- defaults(gp$aesthetics, plot$aesthetics)
+	gp$data <- build_df(plot, gp$data, aesthetics)
+	
 	data.matrix <- facet(gp, plot$formula, plot$margins)
 	apply(data.matrix, c(1,2), function(data) preprocess(gp, data))
 }
@@ -77,7 +77,7 @@ make_grobs <- function(x, data) {
 		return()
 	}
 
-	do.call(name, c(aesthetics=list(data), x$params))
+	do.call(name, c(aesthetics=list(as.name("data")), x$params))
 }
 
 # Make all grobs
@@ -94,7 +94,7 @@ make_all_grobs <- function(x, data) {
 # @keyword manip 
 # @keyword internal
 facet <- function(x, formula, margins) {
-	if (isTRUE(all.equal(formula, .~.))) return(matrix(list(x$data)))
+	if (isTRUE(all.equal(formula, ". ~ ."))) return(matrix(list(x$data)))
 	facets <- stamp(x$data, formula, force, margins=margins)
 	for(i in which(is.na(facets))) facets[[i]] <- data.frame() 
 	facets
@@ -142,8 +142,8 @@ build_df <- function(plot, data, aesthetics) {
 uneval <- function(x) {
 	if (length(x) == 1) return(list())
 	parts <- vector("list", length(x) - 1)
-	for(i in 2:length(x)) parts[[i-1]] <- x[[i]]
 	names(parts) <- names(x)[-1]
+	for(i in length(x):2) parts[[i-1]] <- x[[i]]
 	
 	parts
 }

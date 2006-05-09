@@ -34,9 +34,9 @@
 # @alias trans_inverse
 # @alias trans_none
 # @value modified plot object 
-scale_continuous <- function(variable="x", transform=trans_none, range=c(NA,NA), expand=c(0, 0), breaks=NULL, to=NULL) {
+scale_continuous <- function(variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0, 0), breaks=NULL, to=NULL) {
 	structure(
-		list(variable=variable, transform=transform, range=range, expand=expand, breaks=breaks, to=to), 
+		list(variable=variable, name=name, transform=transform, range=range, expand=expand, breaks=breaks, to=to), 
 		class = c("continuous", "scale")
 	)
 }
@@ -58,7 +58,7 @@ scale_continuous <- function(variable="x", transform=trans_none, range=c(NA,NA),
 # a few common ones for you:
 # 
 #   \item \code{trans_log10}: log base 10
-#   \item \code{trans_log10}: log base 2
+#   \item \code{trans_log2}: log base 2
 #   \item \code{trans_inverse}: inverse
 #   \item \code{trans_sqrt}: square root
 # 
@@ -77,12 +77,12 @@ scale_continuous <- function(variable="x", transform=trans_none, range=c(NA,NA),
 #X pscontinuous(p, "x", transform=trans_sqrt)
 #X pscontinuous(p, "x", transform=trans_log10)
 #X pscontinuous(p, "x", transform=trans_log10, breaks=seq(10,30, 5))
-pscontinuous <- function(plot = .PLOT, variable="x", transform=trans_none, range=c(NA,NA), expand=c(0.05, 0), breaks=NULL) {
-	add_scale(plot,  position_continuous(variable=variable, expand=expand, transform=transform, range=range, breaks=breaks) )
+pscontinuous <- function(plot = .PLOT, variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0.05, 0), breaks=NULL) {
+	add_scale(plot,  position_continuous(variable=variable, name=name, expand=expand, transform=transform, range=range, breaks=breaks) )
 }
 
-position_continuous <- function(variable="x", transform=trans_none, range=c(NA,NA), expand=c(0, 0.5), breaks=NULL) {
-	sc <- scale_continuous(variable=variable, expand=expand, transform=transform, range=range, breaks=breaks)
+position_continuous <- function(variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0, 0.5), breaks=NULL) {
+	sc <- scale_continuous(variable=variable, expand=expand, name=name, transform=transform, range=range, breaks=breaks)
 	class(sc) <- c("position", class(sc))
 	sc
 }
@@ -93,9 +93,8 @@ trans_log2     <- c(log2, function(x) 2^x)
 trans_sqrt     <- c(sqrt, function(x) x^2)
 trans_inverse  <- c(function(x) 1/x, function(x) 1/x)
 
-map.continuous <- function(scale, data, ...) {
-	if (nrow(data) == 0) return(data)
-	if (inherits(data[[input(scale)]], "AsIs")) return(data)
+map_aesthetic.continuous <- function(scale, data, ...) {
+	if (nrow(data) == 0) return(data.frame())
 
 	df <- data.frame((scale$transform[[1]])(as.numeric(data[[input(scale)]])))
 	names(df) <- input(scale)
@@ -121,7 +120,7 @@ range.continuous <- function(scale, ...) expand_range(scale$range, scale$expand[
 
 labels.continuous <- function(object, ...) {
   if (is.null(object$breaks)) {
-    breaks <- grid.pretty((object$transform[[2]])(range(object))) 
+    breaks <- (object$transform[[2]])(grid.pretty(range(object)))
   } else {
     breaks <- object$breaks
   }
@@ -163,10 +162,10 @@ print.continuous <- function(x, ...) {
 #X ggpoint(p, list(size=wt))
 #X scsize(ggpoint(p, list(size=wt)), c(1,10))
 #X scsize(ggpoint(p, list(size=sqrt(wt))), c(1,5))
-scsize <- function(plot = .PLOT, to=c(0.8, 5)) {
-	add_scale(plot, scale_size(to))
+scsize <- function(plot = .PLOT, name="", to=c(0.8, 5)) {
+	add_scale(plot, scale_size(name=name, to))
 }
-scale_size <- function(to=c(0.8, 5)) scale_continuous(variable="size", to=to, transform=trans_sqrt)
+scale_size <- function(name="", to=c(0.8, 5)) scale_continuous(variable="size", name=name, to=to, transform=trans_sqrt)
 
 
 # Scale: colour gradient
@@ -191,18 +190,19 @@ scale_size <- function(to=c(0.8, 5)) scale_continuous(variable="size", to=to, tr
 #X p <- ggjitter(p, list(colour=rating))
 #X scgradient(p, low="yellow")
 #X scgradient(p, high="green", midpoint=5)
-scgradient <- function(plot = .PLOT, low='red', mid='white', high="black", midpoint=0, range=c(NA,NA)) {
-	add_scale(plot, scale_gradient(low, mid, high, midpoint))
+scgradient <- function(plot = .PLOT, name="", low='red', mid='white', high="black", midpoint=0, range=c(NA,NA)) {
+	add_scale(plot, scale_gradient(name=name, low, mid, high, midpoint))
 }
-scfillgradient <- function(plot = .PLOT, low='red', mid='white', high="black", midpoint=0, range=c(NA,NA)) {
-	add_scale(plot, scale_gradient(low, mid, high, midpoint, variable="fill"))
+scfillgradient <- function(plot = .PLOT, name="", low='red', mid='white', high="black", midpoint=0, range=c(NA,NA)) {
+	add_scale(plot, scale_gradient(name=name, low, mid, high, midpoint, variable="fill"))
 }
-scale_gradient <- function(low="red", mid="white", high="black", midpoint=0, range=c(NA,NA), variable="colour") {
+scale_gradient <- function(name="", low="red", mid="white", high="black", midpoint=0, range=c(NA,NA), variable="colour") {
 	x <- scale_continuous(variable, range=range)
 	x$low <- low
 	x$mid <- mid
 	x$high <- high
 	x$midpoint <- midpoint
+	x$name <- name
 	
 	class(x) <- c("gradient", class(x))
 	x
@@ -223,7 +223,9 @@ breaks.gradient <- function(scale, ...) {
   map_colour_gradient(ggpretty(range(scale)), low=scale$low, mid=scale$mid, high=scale$high, midpoint=scale$midpoint, from=scale$range)
 }
 
-map.gradient <- function(scale, data, ...) {
+map_aesthetic.gradient <- function(scale, data, ...) {
+	if (is.null(data[[input(scale)]])) return(data.frame())
+
 	df <- data.frame(colour=map_colour_gradient(data[[input(scale)]], low=scale$low, mid=scale$mid, high=scale$high, midpoint=scale$midpoint, from=scale$range))
 	names(df) <- output(scale)
 	df

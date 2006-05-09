@@ -6,7 +6,7 @@
 \description{
 Add a smooth line to a plot
 }
-\usage{ggsmooth(plot = .PLOT, aesthetics=list(), ..., data=plot$data)}
+\usage{ggsmooth(plot = .PLOT, aesthetics=list(), ..., data=NULL)}
 \arguments{
 \item{plot}{the plot object to modify}
 \item{aesthetics}{named list of aesthetic mappings, see details for more information}
@@ -29,10 +29,10 @@ then you should fit the model and plot the predicted results.
 Aesthetic mappings that this grob function understands:
 
 \itemize{
-\item x: x position (required)
-\item y: y position (required)
-\item size: size of the point, in mm (see \code{\link{scsize})}
-\item colour: point colour (see \code{\link{sccolour})}
+\item \code{x}:x position (required)
+\item \code{y}:y position (required)
+\item \code{size}:size of the point, in mm (see \code{\link{scsize})}
+\item \code{colour}:point colour (see \code{\link{sccolour})}
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -44,9 +44,9 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item method: smoothing method (function) to use
-\item formula: formula to use in smoothing function
-\item se: display one standard error on either side of fit? (true by default)
+\item \code{method}:smoothing method (function) to use
+\item \code{formula}:formula to use in smoothing function
+\item \code{se}:display one standard error on either side of fit? (true by default)
 \item other arguments are passed to smoothing function
 }}
 
