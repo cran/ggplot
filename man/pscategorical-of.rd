@@ -10,8 +10,8 @@ Add a categorical position scale to the plot
 \arguments{
 \item{plot}{ggplot object}
 \item{variable}{axis ("x" or "y")}
-\item{name}{expansion vector (numeric vector, multiplicative and additive expansion).  Defaults to adding 0.6 on either end of the scale.}
-\item{expand}{}
+\item{name}{name of the scale (used in the legend)}
+\item{expand}{expansion vector (numeric vector, multiplicative and additive expansion).  Defaults to adding 0.6 on either end of the scale.}
 }
 
 \details{A categorical scale converts a factor into a numerical representation

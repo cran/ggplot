@@ -9,8 +9,8 @@ Create a scale for categorical shapes.
 \usage{scshape(plot = .PLOT, name="", solid=TRUE)}
 \arguments{
 \item{plot}{plot to add scale to}
-\item{name}{should points be solid or hollow?}
-\item{solid}{}
+\item{name}{name of the scale (used in the legend)}
+\item{solid}{should points be solid or hollow?}
 }
 
 \details{This scale is automatically added when you use the shape aesthetic

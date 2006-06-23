@@ -10,10 +10,10 @@ Create a manual scale
 \arguments{
 \item{plot}{plot object to add scale to}
 \item{variable}{variable to scale}
-\item{name}{numeric vector of break points}
-\item{breaks}{character vector of break labels}
-\item{labels}{grob function to use when drawing legend}
-\item{grob}{}
+\item{name}{name of the scale (used in the legend)}
+\item{breaks}{numeric vector of break points}
+\item{labels}{character vector of break labels}
+\item{grob}{grob function to use when drawing legend}
 }
 
 \details{This scale function allows you complete control over the

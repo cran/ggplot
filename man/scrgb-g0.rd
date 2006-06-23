@@ -10,8 +10,8 @@ Scale continuous variables to red, green and blue components of colour.
 \usage{scrgb(plot = .PLOT, name="", to=list())}
 \arguments{
 \item{plot}{plot to add scale to}
-\item{name}{named list of target ranges (r.to, g.to, b.to, a.to)}
-\item{to}{}
+\item{name}{name of the scale (used in the legend)}
+\item{to}{named list of target ranges (r.to, g.to, b.to, a.to)}
 }
 
 \details{The RGB colour space is NOT perceptually uniform.  Use

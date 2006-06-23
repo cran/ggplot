@@ -21,6 +21,7 @@
 # @keyword hplot 
 #X qplot(LETTERS[1:5], 1:5, type="rect", main="Blah", xlab="Hi")
 #X qplot(LETTERS[1:5], 1:5, type=c("tile", "point"), main="Blah", xlab="Hi", ylim=c(0,10), col=1:5)
+#X qplot(wt, mpg, data=mtcars, col=cyl, glyph=cyl, size=wt)
 qplot <- function(x, y = NULL, data, facets = . ~ ., types = "point", col = NULL, size = NULL, glyph = NULL, line_type = NULL, fill = NULL, xlim = c(NA, NA), ylim = c(NA, NA), log = "", main = NULL, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), ...) {
 	if (!missing(data)) {
 		df <- df2 <- data
@@ -37,9 +38,9 @@ qplot <- function(x, y = NULL, data, facets = . ~ ., types = "point", col = NULL
 	
 	p <- ggplot(df, formula=deparse(substitute(facets)))
 	if (!missing(data)) {
-		p$defaults <- uneval(substitute(list(x=x, y=y, colour=colour, glyph=glyph, size=size, line_type=line_type, fill=fill)))[!c(missing(x), missing(y), missing(col), missing(glyph), missing(size), missing(line_type))]
+		p$defaults <- uneval(substitute(list(x=x, y=y, colour=col, shape=glyph, size=size, line_type=line_type, fill=fill)))[!c(missing(x), missing(y), missing(col), missing(glyph), missing(size), missing(line_type))]
 	} else {
-		p$defaults <- uneval(substitute(list(x=x, y=y, colour=colour, glyph=glyph, size=size, line_type=line_type, fill=fill)))[names(df2)]
+		p$defaults <- uneval(substitute(list(x=x, y=y, colour=colour, shape=glyph, size=size, line_type=line_type, fill=fill)))[names(df2)]
 	}
 	
 	p$title <- main

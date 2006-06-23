@@ -30,5 +30,6 @@ Quick plot is a convenient wrapper function for creating simple ggplot plot obje
 \details{\code{qplot} provides a quick way to create simple plots.}
 
 \examples{qplot(LETTERS[1:5], 1:5, type="rect", main="Blah", xlab="Hi")
-qplot(LETTERS[1:5], 1:5, type=c("tile", "point"), main="Blah", xlab="Hi", ylim=c(0,10), col=1:5)}
+qplot(LETTERS[1:5], 1:5, type=c("tile", "point"), main="Blah", xlab="Hi", ylim=c(0,10), col=1:5)
+qplot(wt, mpg, data=mtcars, col=cyl, glyph=cyl, size=wt)}
 \keyword{hplot}

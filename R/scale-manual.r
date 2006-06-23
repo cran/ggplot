@@ -7,6 +7,7 @@
 # @keyword hplot
 # @arguments plot object to add scale to
 # @arguments variable to scale
+# @arguments name of the scale (used in the legend)
 # @arguments numeric vector of break points
 # @arguments character vector of break labels
 # @arguments grob function to use when drawing legend

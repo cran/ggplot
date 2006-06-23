@@ -64,28 +64,36 @@ ggpcp <- function(data, vars=names(data), scale="range", ...) {
 #X ggfluctuation(table(action=movies$Action, rating=movies$mpaa))
 #X ggfluctuation(table(action=movies$Action, comedy=movies$Comedy), type="colour")
 #X ggfluctuation(table(warpbreaks[,c(1,3)]))
-ggfluctuation <- function(table, type="size", floor=0, ceiling=max(table$freq)) {
+ggfluctuation <- function(table, type="size", floor=0, ceiling=max(table$freq, na.rm=TRUE)) {
   if (is.table(table)) table <- as.data.frame(t(table))
 
   oldnames <- names(table)
   names(table) <- c("x","y", "freq")
-
+	
+	table <- add.all.combinations(table, list("x","y"))	
   table <- transform(table,
 		x = as.factor(x),
-    y = as.factor(y), 
-    freq = sqrt(pmin(freq, ceiling) / ceiling),
-		border = ifelse(freq > ceiling, "grey30", "grey50")
-  )
+    y = as.factor(y)
+ )
+
+	if (type =="size") {
+		table <- transform(table, 
+    	freq = sqrt(pmin(freq, ceiling) / ceiling),
+			border = ifelse(is.na(freq), "grey90", ifelse(freq > ceiling, "grey30", "grey50"))
+  	)
+		table[is.na(table$freq), "freq"] <- 1
+	}
+
 	table <- subset(table, freq * ceiling >= floor)
   
   if (type=="size") {
-    p <- ggrect(ggplot(table, aesthetics = list(x=x, y=y, height=freq, width=freq, fill=border)), justification=c("centre", "centre"), colour="white")
+    p <- ggtile(ggplot(table, aesthetics = list(x=x, y=y, height=freq, width=freq, fill=border)), colour="white")
     #p <- pscategorical(p, var="x", expand=c(0, 1))
     #p <- pscategorical(p, "y", expand=c(0, 1))
 		p <- scmanual(p, "fill")
   } else {
-    p <- ggtile(ggplot(table, aesthetics = list(x=x, y=y, fill=freq)))
-    p <- scfillgradient(p, low="white", high="red")
+    p <- ggtile(ggplot(table, aesthetics = list(x=x, y=y, fill=freq)), colour="grey50")
+    p <- scfillgradient(p, low="white", high="darkgreen")
   }
 
   p$xlabel <- oldnames[1]
@@ -108,11 +116,12 @@ ggfluctuation <- function(table, type="size", floor=0, ceiling=max(table$freq)) 
 # @arguments whether only variables containing some missing values should be shown
 # @keyword hplot
 # @seealso \code{\link{ggstructure}}, \code{\link{ggorder}}
-#X ggmissing(movies)
-#X ggmissing(movies, order=FALSE, missing.only = FALSE)
-#X pscontinuous(ggmissing(movies, avoid="dodge"), "x", range=c(0, 50)) 
-#X pscontinuous(ggmissing(movies, avoid="dodge"), "y", transform=trans_sqrt)
-#X pscontinuous(ggmissing(movies), "y", transform=trans_log10)
+#X mmissing <- movies
+#X mmissing[sample(nrow(movies), 1000), sample(ncol(movies), 5)] <- NA
+#X ggmissing(mmissing)
+#X ggmissing(mmissing, order=FALSE, missing.only = FALSE)
+#X pscontinuous(ggmissing(mmissing, avoid="dodge"), "y", transform=trans_sqrt, range=c(0, NA))
+#X pscontinuous(ggmissing(mmissing), "y", transform=trans_log10, range=c(0, NA))
 ggmissing <- function(data, avoid="stack", order=TRUE, missing.only = TRUE) {
 	missings <- mapply(function(var, name) cbind(as.data.frame(table(missing=factor(is.na(var), levels=c(TRUE, FALSE), labels=c("yes", "no")))), variable=name), 
 		data, names(data), SIMPLIFY=FALSE
@@ -126,8 +135,9 @@ ggmissing <- function(data, avoid="stack", order=TRUE, missing.only = TRUE) {
 	if (order) {
 		df$variable <- reorder_factor(df$variable, prop)
 	}
+
 	if (missing.only) {
-		df <- df[df$prop > 0 & df$prop < 1, ]
+		df <- df[df$prop > 0 & df$prop < 1, , drop=FALSE]
 		df$variable <- factor(df$variable)
 	}
 	
@@ -154,6 +164,8 @@ ggstructure <- function(data, scale = "rank") {
 # ar
 #  Need ggobi version as well that creates edge between consecutive observations (and adds row number to dataset)
 # 
+# @arguments data set to plot
+# @arguments type of scaling to use.  See \code{\link[reshape]{rescaler}} for options
 # @keyword hplot 
 ggorder <- function(data, scale="rank") {
 	p <- ggpcp(data, scale="rank")
@@ -163,4 +175,28 @@ ggorder <- function(data, scale="rank") {
 	p <- pscontinuous(p, "x")
 	p$xlabel <- "row number"
 	p
+}
+
+# Distribution plot
+# Experimental template
+# 
+# @keyword internal  
+ggdist <- function(data, facets = . ~ .) {
+	cat <- sapply(data, is.factor)
+	facets <- deparse(substitute(facets))
+	
+	grid.newpage()
+	pushViewport(viewport(layout=grid.layout(ncol = ncol(data))))
+	
+	mapply(function(name, cat, i) {
+		p <- ggplot(data)
+		p <- setfacets(p, facets)
+		p$defaults <- list(x=as.name(name), y=1)#uneval(substitute(list(x=name)))
+		p <- if (cat) ggbar(p, avoid="stack") else gghistogram(p)
+		pushViewport(viewport(layout.pos.col=i))
+		grid.draw(ggplot_plot(p, pretty=FALSE))
+		popViewport()
+	}, names(data), cat, 1:ncol(data))
+	invisible()
+	
 }

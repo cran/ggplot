@@ -20,9 +20,10 @@ is much more apparent when used with interactive graphics, as you can
 see in Mondrian (\url{http://rosuda.org/mondrian}) where this plot was
 copied from.}
 \seealso{\code{\link{ggstructure}}, \code{\link{ggorder}}}
-\examples{ggmissing(movies)
-ggmissing(movies, order=FALSE, missing.only = FALSE)
-pscontinuous(ggmissing(movies, avoid="dodge"), "x", range=c(0, 50)) 
-pscontinuous(ggmissing(movies, avoid="dodge"), "y", transform=trans_sqrt)
-pscontinuous(ggmissing(movies), "y", transform=trans_log10)}
+\examples{mmissing <- movies
+mmissing[sample(nrow(movies), 1000), sample(ncol(movies), 5)] <- NA
+ggmissing(mmissing)
+ggmissing(mmissing, order=FALSE, missing.only = FALSE)
+pscontinuous(ggmissing(mmissing, avoid="dodge"), "y", transform=trans_sqrt, range=c(0, NA))
+pscontinuous(ggmissing(mmissing), "y", transform=trans_log10, range=c(0, NA))}
 \keyword{hplot}

@@ -276,11 +276,11 @@ map_colour_brewer <- function(x, palette=1){
 map_color_brewer <- map_colour_brewer
 
 
-map_colour <- function(x, h=c(0,270), l=60, c=90) {
+map_colour <- function(x, h=c(0,270), l=60, c=90, alpha=1) {
 	x <- chop_auto(x)
 	n <- length(levels(x))
 	
-	pal <- hcl(seq(h[1], h[2], length = n), c=c, l=l)
+	pal <- hcl(seq(h[1], h[2], length = n), c=c, l=l, alpha=alpha)
 	pal
 	#names(pal) <- 
 	#pal[levels(x)]

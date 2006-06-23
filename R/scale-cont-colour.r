@@ -47,6 +47,7 @@ map_aesthetic.scale_cont_colour <- function(scale, data, ...) {
 # Note: alpha mappings only work with the Quartz and PDF devices.
 # 
 # @arguments plot to add scale to
+# @arguments name of the scale (used in the legend)
 # @arguments named list of target ranges (r.to, g.to, b.to, a.to)
 # @keyword hplot 
 # @seealso \code{\link{map_colour_rgb}}, \code{\link{rgb}}

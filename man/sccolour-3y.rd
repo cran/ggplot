@@ -8,13 +8,14 @@
 \description{
 Create a scale for categorical colours.
 }
-\usage{sccolour(plot = .PLOT, name="", h=c(0,270), l=60, c=90)}
+\usage{sccolour(plot = .PLOT, name="", h=c(0,270), l=60, c=90, alpha=1)}
 \arguments{
 \item{plot}{plot to add scale to}
-\item{name}{Color Brewer palette to use, see \code{\link[RColorBrewer]{brewer.pal}} for details.  Note that palette type is chosen automatically.}
-\item{h}{}
+\item{name}{name of the scale (used in the legend)}
+\item{h}{Color Brewer palette to use, see \code{\link[RColorBrewer]{brewer.pal}} for details.  Note that palette type is chosen automatically.}
 \item{l}{}
 \item{c}{}
+\item{alpha}{}
 }
 
 \details{Continuous variables will automatically be converted to categorical

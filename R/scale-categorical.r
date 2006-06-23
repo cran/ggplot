@@ -17,6 +17,7 @@
 # 
 # @arguments ggplot object
 # @arguments axis ("x" or "y")
+# @arguments name of the scale (used in the legend)
 # @arguments expansion vector (numeric vector, multiplicative and additive expansion).  Defaults to adding 0.6 on either end of the scale.
 # @keyword hplot
 #X p <- ggpoint(ggplot(mtcars, aesthetics=list(x=cyl, y=mpg)))
@@ -60,7 +61,9 @@ position_categorical <- function(variable="x", name="", expand=c(0, 0.5)) {
 # you will need to change the levels in the original factor.
 # 
 # @arguments variable that this scale is for
-# @arguments 
+# @arguments name of the scale (used in the legend)
+# @arguments expansion factor for scale
+# @arguments transformation function
 # @keyword hplot 
 # @keyword internal 
 scale_categorical <- function(variable="x", name="", expand=c(0,0), transform="as.numeric", ...) {
@@ -144,6 +147,7 @@ defaultgrob.categorical <- function(x) {
 # yourself.  See the example for some ideas.
 # 
 # @arguments plot to add scale to
+# @arguments name of the scale (used in the legend)
 # @arguments Color Brewer palette to use, see \code{\link[RColorBrewer]{brewer.pal}} for details.  Note that palette type is chosen automatically.
 # @seealso \code{\link{scale_categorical}}, \code{\link{map_colour}}
 # @keyword hplot 
@@ -155,16 +159,16 @@ defaultgrob.categorical <- function(x) {
 #X ggjitter(p, list(colour=chop(length)))
 #X ggjitter(p, list(colour=chop(length,3)))
 #X sccolour(ggjitter(p, list(colour=chop(length,3))), 2)
-sccolour <- function(plot = .PLOT, name="", h=c(0,270), l=60, c=90) {
-	add_scale(plot, scale_colour(name=name, h=h, l=l, c=c))
+sccolour <- function(plot = .PLOT, name="", h=c(0,270), l=60, c=90, alpha=1) {
+	add_scale(plot, scale_colour(name=name, h=h, l=l, c=c, alpha=alpha))
 }
 sccolor <- sccolour
-scale_colour <- function(name="", h=c(0,270), l=60, c=90) scale_categorical("colour", name=name, h=h, l=l, c=c, transform="map_colour")
+scale_colour <- function(name="", h=c(0,270), l=60, c=90, alpha=1) scale_categorical("colour", name=name, h=h, l=l, c=c, transform="map_colour", alpha=alpha)
 
-scfill <- function(plot = .PLOT, name="", h=c(0,270), l=60, c=90) {
-	add_scale(plot, scale_fill(name=name, h=h, l=l, c=c))
+scfill <- function(plot = .PLOT, name="", h=c(0,270), l=60, c=90, alpha=1) {
+	add_scale(plot, scale_fill(name=name, h=h, l=l, c=c, alpha=alpha))
 }
-scale_fill <- function(name="", h=c(0,270), l=60, c=90) scale_categorical("fill", name=name, h=h, l=l, c=c, transform="map_colour")
+scale_fill <- function(name="", h=c(0,270), l=60, c=90, alpha=1) scale_categorical("fill", name=name, h=h, l=l, c=c, transform="map_colour", alpha=alpha)
 
 #scfillbrewer <- function(plot = .PLOT, name="", palette=1) {
 #	add_scale(plot, scale_fill_brewer(name=name, palette=palette))
@@ -180,6 +184,7 @@ scale_fill <- function(name="", h=c(0,270), l=60, c=90) scale_categorical("fill"
 # 
 # @keyword hplot 
 # @arguments plot to add scale to
+# @arguments name of the scale (used in the legend)
 # @arguments should points be solid or hollow?
 # @seealso \code{\link{scale_categorical}}, \code{\link{map_shape}}
 #X p <- ggplot(mtcars, aes=list(x=mpg, y=wt, shape=cyl))
@@ -200,6 +205,7 @@ scale_shape <- function(name="", solid=TRUE) scale_categorical("shape", name=nam
 # 
 # @keyword hplot 
 # @arguments plot to add scale to
+# @arguments name of the scale (used in the legend)
 # @seealso \code{\link{scale_categorical}}, \code{\link{map_linetype}}
 #X p <- ggplot(mtcars, aes=list(x=mpg, y=wt, linetype=cyl))
 #X ggline(p)

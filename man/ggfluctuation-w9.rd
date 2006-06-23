@@ -6,7 +6,7 @@
 \description{
 Create a fluctuation plot.
 }
-\usage{ggfluctuation(table, type="size", floor=0, ceiling=max(table$freq))}
+\usage{ggfluctuation(table, type="size", floor=0, ceiling=max(table$freq, na.rm=TRUE))}
 \arguments{
 \item{table}{a table of values, or a data frame with three columns, the last column being frequency}
 \item{type}{size, or colour to create traditional heatmap}

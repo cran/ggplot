@@ -119,7 +119,7 @@ facet <- function(x, formula, margins) {
 # @arguments extra arguments supplied by user that should be used first
 # @keyword hplot
 # @keyword internal
-build_df <- function(plot, data, aesthetics) {
+build_df <- function(plot, data = plot$data, aesthetics=NULL) {
   if (is.null(data)) data <- plot$data
 	if(!is.data.frame(data)) stop("data is not a data.frame")
 

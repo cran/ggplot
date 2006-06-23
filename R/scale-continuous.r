@@ -21,6 +21,7 @@
 # \code{trans_log2}, \code{trans_sqrt}, \code{trans_inverse}
 # 
 # @arguments variable name
+# @arguments name of the scale (used in the legend)
 # @arguments vector of length two, first element the transforming function and the second its inverse
 # @arguments range of values to display on guides
 # @arguments expansion factor for guides
@@ -64,6 +65,7 @@ scale_continuous <- function(variable="x", name="", transform=trans_none, range=
 # 
 # @arguments plot
 # @arguments variable ("x" or "y")
+# @arguments name of the scale (used in the legend)
 # @arguments transform function and it's inverse in a vector
 # @arguments range, or leave missing to automatically determine
 # @arguments expansion vector (numeric vector, multiplicative and additive expansion)
@@ -156,6 +158,7 @@ print.continuous <- function(x, ...) {
 # 
 # @keyword hplot
 # @arguments plot to add scale to.
+# @arguments name of the scale (used in the legend)
 # @arguments size range in mm (numeric vector, length 2)
 #X p <- ggplot(mtcars, aes=list(x=mpg, y=hp))
 #X ggpoint(p)
@@ -179,6 +182,7 @@ scale_size <- function(name="", to=c(0.8, 5)) scale_continuous(variable="size", 
 # @alias scfillgradient
 # @seealso \code{\link{sccolour}}
 # @arguments plot object to add scale to
+# @arguments name of the scale (used in the legend)
 # @arguments colour at low end of scale
 # @arguments colour at middle of scale
 # @arguments colour at top of scale

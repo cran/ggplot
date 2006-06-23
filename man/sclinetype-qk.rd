@@ -9,7 +9,7 @@ Create a scale for categorical line types.
 \usage{sclinetype(plot = .PLOT, name="")}
 \arguments{
 \item{plot}{plot to add scale to}
-\item{name}{}
+\item{name}{name of the scale (used in the legend)}
 }
 
 \details{This scale is automatically added to the plot when you use the linetype

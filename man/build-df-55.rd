@@ -6,7 +6,7 @@
 \description{
 Build data frome for a plot with given data and ... (dots) arguments
 }
-\usage{build_df(plot, data, aesthetics)}
+\usage{build_df(plot, data = plot$data, aesthetics=NULL)}
 \arguments{
 \item{plot}{plot object}
 \item{data}{data frame to use}

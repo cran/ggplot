@@ -99,9 +99,11 @@ grob_point <- function(aesthetics, unique=TRUE, ...) {
 # 
 # \itemize{
 #   \item \code{intercept}:intercept(s) of line
-#   \item \code{slope}:slope(s) of line
+#   \item \code{slope}:slope(s) of line, set to Inf
 #   \item \code{colour}:line colour
-#   \item \code{size}:line thickness, in mm
+#   \item \code{size}:line thickness
+#   \item \code{line_tyep}:line type
+# 	\item \code{range}: x (or y if slope infinite) range to draw the line.  This is sometimes necessary because ggplot isn't smart enough to calculate the entire range of the data
 # }
 # 
 # @arguments the plot object to modify
@@ -116,8 +118,8 @@ grob_point <- function(aesthetics, unique=TRUE, ...) {
 ggabline <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("abline", plot, aesthetics, ..., data=data)
 }
-grob_abline <- function(aesthetics, intercept=0, slope=1, ...) {
-	xrange <- range(range(aesthetics$x, na.rm=TRUE), c(-100,100))
+grob_abline <- function(aesthetics, intercept=0, slope=1, range=c(NA, NA), ...) {
+	xrange <- range(range(aesthetics$x, na.rm=TRUE), range, na.rm=TRUE)
 
 	build_line <- function(intercept, slope) {
 		y <- function(x) x * slope + intercept
@@ -130,6 +132,90 @@ grob_abline <- function(aesthetics, intercept=0, slope=1, ...) {
 	))
 }
 
+
+# Grob function: vline
+# Add vertical line(s) to a plot
+# 
+# Aesthetic mappings that this grob function understands:
+#
+# \itemize{
+#   \item none
+# }
+#
+# Other options:
+# 
+# \itemize{
+#   \item \code{position}: vertical position(s) to draw lines
+#   \item \code{colour}: line colour
+#   \item \code{size}: line thickness
+#   \item \code{linetype}: line type
+# 	\item \code{range}: x (or y if slope infinite) range to draw the line.  This is sometimes necessary because ggplot isn't smart enough to calculate the entire range of the data
+# }
+# 
+# @arguments the plot object to modify
+# @arguments named list of aesthetic mappings, see details for more information
+# @arguments other options, see details for more information
+# @arguments data source, if not specified the plot default will be used
+# @keyword hplot
+#X p <- ggplot(mtcars, aesthetics=list(x = wt, y=mpg))
+#X ggvline(ggpoint(p), position=mean(mtcars$wt), size=2)
+ggvline <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
+	gg_add("vline", plot, aesthetics, ..., data=data)
+}
+grob_vline <- function(aesthetics, position=0, range=c(NA, NA), ...) {
+	yrange <- range(range(aesthetics$y, na.rm=TRUE), range, na.rm=TRUE)
+
+	build_line <- function(position) {
+		list(x=c(position, position), y=yrange)
+	}
+	
+	aesthetics <- mapply(build_line, position, SIMPLIFY=FALSE)
+	gTree(children = do.call(gList,
+		lapply(aesthetics, grob_line, ...)
+	))
+}
+
+# Grob function: hline
+# Add horizontal line(s) to a plot
+# 
+# Aesthetic mappings that this grob function understands:
+#
+# \itemize{
+#   \item none
+# }
+#
+# Other options:
+# 
+# \itemize{
+#   \item \code{position}: vertical position(s) to draw lines
+#   \item \code{colour}: line colour
+#   \item \code{size}: line thickness
+#   \item \code{linetype}: line type
+# 	\item \code{range}: x (or y if slope infinite) range to draw the line.  This is sometimes necessary because ggplot isn't smart enough to calculate the entire range of the data
+# }
+# 
+# @arguments the plot object to modify
+# @arguments named list of aesthetic mappings, see details for more information
+# @arguments other options, see details for more information
+# @arguments data source, if not specified the plot default will be used
+# @keyword hplot
+#X p <- ggplot(mtcars, aesthetics=list(x = wt, y=mpg))
+#X gghline(ggpoint(p), position=mean(mtcars$mpg), size=2)
+gghline <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
+	gg_add("hline", plot, aesthetics, ..., data=data)
+}
+grob_hline <- function(aesthetics, position=0, range=c(NA, NA), ...) {
+	xrange <- range(range(aesthetics$x, na.rm=TRUE), range, na.rm=TRUE)
+
+	build_line <- function(position) {
+		list(y=c(position, position), x=xrange)
+	}
+	
+	aesthetics <- mapply(build_line, position, SIMPLIFY=FALSE)
+	gTree(children = do.call(gList,
+		lapply(aesthetics, grob_line, ...)
+	))
+}
 
 # Grob function: jittered points
 # Add jittered points to a plot
@@ -715,4 +801,8 @@ grob_tile  <- function(aesthetics, ...) {
 # @seealso \code{\link{ggtile}}
 # @keyword hplot
 # @keyword internal 
-resolution <- function(x) min(diff(sort(unique(as.numeric(x)))))
+resolution <- function(x) {
+	un <- unique(as.numeric(x))
+	if (length(un) == 1) return(1)
+	min(diff(sort(un)))
+}

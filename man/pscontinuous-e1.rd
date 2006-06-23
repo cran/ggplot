@@ -10,11 +10,11 @@ Add a continuous position scale to the plot
 \arguments{
 \item{plot}{plot}
 \item{variable}{variable ("x" or "y")}
-\item{name}{transform function and it's inverse in a vector}
-\item{transform}{range, or leave missing to automatically determine}
-\item{range}{expansion vector (numeric vector, multiplicative and additive expansion)}
-\item{expand}{set breaks manually}
-\item{breaks}{}
+\item{name}{name of the scale (used in the legend)}
+\item{transform}{transform function and it's inverse in a vector}
+\item{range}{range, or leave missing to automatically determine}
+\item{expand}{expansion vector (numeric vector, multiplicative and additive expansion)}
+\item{breaks}{set breaks manually}
 }
 \value{modified plot object}
 \details{There are a few useful things that you can do with \code{pscontinuous}:

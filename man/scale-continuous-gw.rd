@@ -14,12 +14,12 @@ Transform scale with a monotone function
 \usage{scale_continuous(variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0, 0), breaks=NULL, to=NULL)}
 \arguments{
 \item{variable}{variable name}
-\item{name}{vector of length two, first element the transforming function and the second its inverse}
-\item{transform}{range of values to display on guides}
-\item{range}{expansion factor for guides}
-\item{expand}{manually specified breaks to use}
-\item{breaks}{if non-null, scale variable to this range after transformation}
-\item{to}{}
+\item{name}{name of the scale (used in the legend)}
+\item{transform}{vector of length two, first element the transforming function and the second its inverse}
+\item{range}{range of values to display on guides}
+\item{expand}{expansion factor for guides}
+\item{breaks}{manually specified breaks to use}
+\item{to}{if non-null, scale variable to this range after transformation}
 }
 \value{modified plot object}
 \details{You shouldn't call this function yourself.  Please use one of:

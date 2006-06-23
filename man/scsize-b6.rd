@@ -9,8 +9,8 @@ Linearly map size to a variable.
 \usage{scsize(plot = .PLOT, name="", to=c(0.8, 5))}
 \arguments{
 \item{plot}{plot to add scale to.}
-\item{name}{size range in mm (numeric vector, length 2)}
-\item{to}{}
+\item{name}{name of the scale (used in the legend)}
+\item{to}{size range in mm (numeric vector, length 2)}
 }
 
 \details{The mapping between size and the original variable value is not

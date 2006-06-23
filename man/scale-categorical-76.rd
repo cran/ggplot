@@ -9,9 +9,9 @@ Create a categorical scale for the specified variable
 \usage{scale_categorical(variable="x", name="", expand=c(0,0), transform="as.numeric", ...)}
 \arguments{
 \item{variable}{variable that this scale is for}
-\item{name}{}
-\item{expand}{}
-\item{transform}{}
+\item{name}{name of the scale (used in the legend)}
+\item{expand}{expansion factor for scale}
+\item{transform}{transformation function}
 \item{...}{}
 }
 
