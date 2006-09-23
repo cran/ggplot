@@ -75,16 +75,30 @@ plot_add_grobs <- function(plot, grob_matrix) {
 ggplot_plot <- function(plot, viewport=viewport_default(plot, guides, plot$scales), panels=panels_default(plot, grobs), guides=guides_basic(plot, plot$scales), pretty=TRUE) {
 	if (length(plot$grobs) == 0) stop("No grobs to plot")
 	
-	plot <- add_defaults(plot, plot$defaults)
 	pre <- lapply(plot$grobs, preprocess_all, plot=plot)
-	plot <- add_position(add_position(plot, pre, "x"), pre, "y")
+	plot <- add_position(add_position(plot, pre, "x"), pre, "y") # should go into add_defaults
+	plot <- add_defaults(plot, plot$defaults)
 	
 	update(plot$scales) <- pre
 	
 	aes <- map_all(plot$scales, pre)
 	grobs <- mapply(make_all_grobs, plot$grobs, aes, SIMPLIFY=FALSE)
 	
-	plotgrob <- gTree(children=do.call(gList, c(unlist(guides, recursive=FALSE), panels)), childrenvp = viewport)
+	plotgrob <- gTree(children=do.call(gList, c(unlist(guides, recursive=FALSE), panels)), childrenvp = viewport, name="plot")
 	if (!pretty) return(plotgrob)
 	prettyplot(plot, plotgrob)
 }
+
+# Manipulates plot object 
+# (a bit better for caching later on)
+# 
+# Updates plot object with grobs needed to draw plot
+# 
+# pre <- grobs_preprocess(plot)
+# plot <- scales_add_defaults(plot)
+# plot$scales <- scales_train(plot)
+# plot <- grobs_process_scaled(plot)
+# plot <- scales_train_combine_map(plot)
+# plot <- grobs_map(plot)
+# 
+# return(plot)

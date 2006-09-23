@@ -2,11 +2,13 @@
 # Create a new ggplot plot
 # 
 # This function creates the basic ggplot object which you can then
-# furnish with graphical objets.  Here you will set 
+# furnish with graphical objects.  Here you will set 
 # up the default data frame, default aesthetics and the formula that
-# will determine how the panels are broken apart.  See \code{\link{reshape}} 
+# will determine how the panels are broken apart.  See \code{\link[reshape]{reshape}} 
 # for more details on specifying the facetting formula and margin arguments.
-# 
+# Note that ggplot creates a plot object without a "plot": you need to
+# grobs (points, lines, bars, etc.) to create something that you can see.
+#
 # To get started, read the introductory vignette: \code{vignette("introduction", "ggplot")}
 # 
 # Steps to create a plot:
@@ -90,10 +92,10 @@
 # @alias package-ggplot
 # @alias ggplot
 # @arguments default data frame
-# @arguments formula describing row and column layout, see \code{\link{reshape}} for more details
+# @arguments formula describing row and column layout, see \code{\link[reshape]{reshape}} for more details
 # @arguments a vector of names giving which margins to display, can include grand\_row and grand\_col or uss TRUE to display all margins
 # @arguments default list of aesthetic mappings (these can be colour, size, shape, line type -- see individual grob functions for more details)
-# @seealso \url{http://had.co.nz/ggplot}, \code{\link[reshape]{stamp}}, \code{\link[reshape]{reshape}}, \code{\link{ggopt}} 
+# @seealso \url{http://had.co.nz/ggplot}, \code{\link[reshape]{stamp}}, \code{\link[reshape]{reshape}}, \code{\link{ggopt}}, \code{vignette("introduction", "ggplot")}
 # @keyword hplot
 #X p <- ggplot(tips)
 #X summary(p)
@@ -130,7 +132,7 @@ ggplot.default <- function(data = NULL, formula = . ~ ., margins=FALSE, aestheti
 		scales = scales(),
 		defaults = uneval(substitute(aesthetics)),
 		title = "",
-		fixedaspect = FALSE,
+		fixedaspect = FALSE
 	), class="ggplot")
 	
 	p$xlabel <- if (!is.null(p$defaults$x)) deparse(p$defaults$x) else ""
@@ -159,7 +161,7 @@ defaultaesthetics <- function(plot, aesthetics) {
 # Set the function that controls how the plot is facetted into multiple panels.
 # 
 # @arguments plot object, if not specified will use current plot
-# @arguments formula describing row and column layout, see \code{\link{reshape}} for more details
+# @arguments formula describing row and column layout, see \code{\link[reshape]{reshape}} for more details
 # @arguments a vector of names giving which margins to display, can include grand\_row and grand\_col or uss TRUE to display all margins
 # @keyword hplot 
 setfacets <- function(p = .PLOT, formula = . ~ . , margins = FALSE) {
@@ -195,10 +197,29 @@ setdata <- function(p = .PLOT, data) {
 # Print generic for ggplot.  Plot on current graphics device.
 #
 # @arguments plot to display
+# @arguments draw new (empty) page first?
+# @arguments viewport to draw plot in
 # @arguments other arguments passed on to \code{\link{ggplot_plot}}
 # @keyword hplot
 # @keyword internal 
-print.ggplot <- function(x, ...) {
-	grid.newpage()
-	grid.draw(ggplot_plot(x, ...))
+print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, save=ggopt()$save, ...) {
+	# if (save) {
+	# 	require("decumar")
+	# 	img(grid.draw(ggplot_plot(x, ...)), hash=digest(x))
+	# 	return()
+	# }
+	
+	if (newpage) grid.newpage()
+	if (is.null(vp)) {
+		grid.draw(ggplot_plot(x, ...)) 
+	} else { 
+		pushViewport(vp)
+		grid.draw(ggplot_plot(x, ...)) 
+		upViewport()
+	}
+	
+	if (save) {
+		dev.off()
+		print("\\includegraphics")
+	}
 }

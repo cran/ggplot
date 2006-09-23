@@ -27,7 +27,7 @@ pscategorical <- function(plot = .PLOT, variable="x", name="", expand=c(0.01, 0.
 	add_scale(plot,  position_categorical(variable=variable, name=name, expand=expand) )
 }
 position_categorical <- function(variable="x", name="", expand=c(0, 0.5)) {
-	sc <- scale_categorical(variable=variable, name=name, expand=expand)
+	sc <- scale_categorical(variable=variable, name=name, expand=expand, visible=TRUE)
 	class(sc) <- c("position", class(sc))
 	sc
 }
@@ -88,15 +88,17 @@ scale_categorical <- function(variable="x", name="", expand=c(0,0), transform="a
 
 map_aesthetic.categorical <- function(scale, data, ...) {
 	if (!(input(scale) %in% names(data))) return(data.frame())
-	
+
 	val <- data[[input(scale)]]
 	if (!is.null(scale$autobreaks)) {
 		breaks <- scale$autobreaks
-		val <- cut(val, breaks, labels=FALSE, include.lowest=TRUE) - attr(breaks,"midpoint.level")
+		val <- cut(val, breaks, labels=FALSE, include.lowest=TRUE) #- attr(breaks,"midpoint.level")
+  	vals <- scale$map[val]
 	} else {
 		val <- as.character(val)
+  	vals <- scale$map[as.character(val)]
 	}
-	vals <- scale$map[as.character(val)]
+
 	names(vals)[is.na(names(vals))] <- "missing"
 	
 	df <- data.frame(vals)
@@ -148,7 +150,10 @@ defaultgrob.categorical <- function(x) {
 # 
 # @arguments plot to add scale to
 # @arguments name of the scale (used in the legend)
-# @arguments Color Brewer palette to use, see \code{\link[RColorBrewer]{brewer.pal}} for details.  Note that palette type is chosen automatically.
+# @arguments range of hues to use
+# @arguments luminance value
+# @arguments chroma value
+# @arguments alpha value
 # @seealso \code{\link{scale_categorical}}, \code{\link{map_colour}}
 # @keyword hplot 
 # @alias sccolor
@@ -159,21 +164,28 @@ defaultgrob.categorical <- function(x) {
 #X ggjitter(p, list(colour=chop(length)))
 #X ggjitter(p, list(colour=chop(length,3)))
 #X sccolour(ggjitter(p, list(colour=chop(length,3))), 2)
-sccolour <- function(plot = .PLOT, name="", h=c(0,270), l=60, c=90, alpha=1) {
+sccolour <- function(plot = .PLOT, name="", h=c(0,360), l=65, c=100, alpha=1) {
 	add_scale(plot, scale_colour(name=name, h=h, l=l, c=c, alpha=alpha))
 }
 sccolor <- sccolour
-scale_colour <- function(name="", h=c(0,270), l=60, c=90, alpha=1) scale_categorical("colour", name=name, h=h, l=l, c=c, transform="map_colour", alpha=alpha)
+scale_colour <- function(name="", h=c(0, 360), l=65, c=100, alpha=1) scale_categorical("colour", name=name, h=h, l=l, c=c, transform="map_colour", alpha=alpha)
 
-scfill <- function(plot = .PLOT, name="", h=c(0,270), l=60, c=90, alpha=1) {
+scfill <- function(plot = .PLOT, name="", h=c(0,360), l=75, c=100, alpha=1) {
 	add_scale(plot, scale_fill(name=name, h=h, l=l, c=c, alpha=alpha))
 }
-scale_fill <- function(name="", h=c(0,270), l=60, c=90, alpha=1) scale_categorical("fill", name=name, h=h, l=l, c=c, transform="map_colour", alpha=alpha)
+scale_fill <- function(name="", h=c(0,360), l=75, c=100, alpha=1) scale_categorical("fill", name=name, h=h, l=l, c=c, transform="map_colour", alpha=alpha)
 
-#scfillbrewer <- function(plot = .PLOT, name="", palette=1) {
-#	add_scale(plot, scale_fill_brewer(name=name, palette=palette))
-#}
-#scale_fill_brewer <- function(name="", palette=1) scale_categorical("fill", name=name, palette=palette, transform="map_colour_brewer")
+# Scale: Brewer colours
+# Use Brewer colour scheme for colour fill.
+# 
+# @arguments plot to add scale to
+# @arguments name of the scale (used in the legend)
+# @arguments Color Brewer palette to use, see \code{\link[RColorBrewer]{brewer.pal}} for details.  Note that palette type is chosen automatically.
+# @keyword hplot 
+scfillbrewer <- function(plot = .PLOT, name="", palette=1) {
+	add_scale(plot, scale_fill_brewer(name=name, palette=palette))
+}
+scale_fill_brewer <- function(name="", palette=1) scale_categorical("fill", name=name, palette=palette, transform="map_colour_brewer")
 
 # Scale: shape
 # Create a scale for categorical shapes.

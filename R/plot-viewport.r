@@ -32,7 +32,7 @@ viewport_default <- function(plot, guides=guides_basic(plot), scales=scales_defa
 		setup_viewports("labels_v", data=row.labels,         offset=c(ncol(col.labels), cols-ncol(row.labels)), range=range),
 		setup_viewports("axis_h",   rows=1, cols=ncol(gm),   offset=c(rows-1, 1), range=range),
 		setup_viewports("axis_v",   rows=nrow(gm), cols=1,   offset=c(ncol(col.labels), 0),      range=range),
-		setup_viewports("panel",    data=gm,                 offset=c(ncol(col.labels),1), range=range),
+		setup_viewports("panel",    data=gm,                 offset=c(ncol(col.labels),1), range=range)
 	))
 	vpTree(viewport(layout=layout, name="layout"), viewports)
 }

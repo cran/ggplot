@@ -8,6 +8,7 @@
 \alias{grob_contour}
 \alias{grob_density}
 \alias{grob_group}
+\alias{grob_errorbar}
 \alias{grob_hexagon}
 \alias{grob_histogram}
 \alias{grob_hline}
@@ -25,6 +26,8 @@
 \alias{grob_vline}
 \alias{pre_bar}
 \alias{pre_density}
+\alias{pre_errorbar}
+\alias{pre_group}
 \alias{pre_histogram}
 \alias{pre_ribbon}
 \title{Grob creation functons}

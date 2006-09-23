@@ -123,9 +123,10 @@ build_df <- function(plot, data = plot$data, aesthetics=NULL) {
   if (is.null(data)) data <- plot$data
 	if(!is.data.frame(data)) stop("data is not a data.frame")
 
-	eval.each <- function(dots) lapply(dots, function(x) eval(x, data, parent.frame()))
+	eval.each <- function(dots) tryapply(dots, function(x) eval(x, data, parent.frame()))
 	
 	aesthetics <- defaults(aesthetics, plot$defaults)
+	
 	df <- data.frame(eval.each(aesthetics))
 	
 	df <- cbind(df, data[,intersect(names(data), plot$conditions), drop=FALSE])

@@ -36,13 +36,15 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item \code{xjitter}:degree of jitter in x direction, see \code{\link{jitter} for details, defaults to 1}
-\item \code{yjitter}:degree of jitter in y direction, see \code{\link{jitter} for details, defaults to 0}
+\item \code{xjitter}:degree of jitter in x direction, see \code{\link{jitter} for details, defaults to 1 if the x variable is a factor, 0 otherwise}
+\item \code{yjitter}:degree of jitter in y direction, see \code{\link{jitter} for details, defaults to 1 if the y variable is a factor, 0 otherwise}
 }}
 
 \examples{p <- ggplot(movies, aes=list(x=mpaa, y=rating))
 ggjitter(p)
 ggjitter(ggboxplot(p))
 ggjitter(ggboxplot(p), xjitter=2)
-ggjitter(ggboxplot(p), yjitter=1)}
+ggjitter(ggboxplot(p), yjitter=1)
+p <- ggplot(movies, aes=list(x=mpaa, y=factor(Action)))
+ggjitter(p)}
 \keyword{hplot}

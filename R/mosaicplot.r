@@ -1,3 +1,22 @@
+# Mosaic plot:
+#   ggplot(df, aes=list(m1 = a, m2 = bm, m3=s))
+#  + psmosaic(p, direction, offset, range)
+# 
+# -> ggplot(df, aes(mosaic(list(a, bm, s), direction, offset, range=n)))
+# 
+#  + ggrect(p)
+# 
+# Ternary plot:
+#   ggplot(df, aes=list(a=a, b=b, c=c))
+#  + psternary(p) # check/force add up to one
+#  + ggpoint(p)
+# 
+# Glyph plot:
+# 	ggplot(df, aes=list(x=x, y=y)) 
+#  ggglyph(p, aes=list(g1=a, g2=b, gc=3), type="star", size)
+# 
+# 
+
 # Mosaic plot
 # 
 # @keyword internal 
@@ -54,7 +73,7 @@ mosaicdata <- function(df, direction, offset, xrange=c(0,1), yrange=c(0,1)) {
   if (ncol(df) == 2) {
     return(switch(direction, 
       v = data.frame(df, x0=xrange[1], x1=xrange[2], y0=breaks[,1], y1=breaks[,2]),
-      h = data.frame(df, y0=yrange[1], y1=yrange[2], x0=breaks[,1], x1=breaks[,2]),
+      h = data.frame(df, y0=yrange[1], y1=yrange[2], x0=breaks[,1], x1=breaks[,2])
     ))
   }
   

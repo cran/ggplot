@@ -18,6 +18,7 @@ Display a smooth density estimate.
 
 \itemize{
 \item \code{x}:x position (required)
+\item \code{weight}: observation weights
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -34,11 +35,14 @@ for details
 \item \code{kernel}: kernel used for density estimation, see \code{\link{density}}
 for details
 \item other aesthetic properties passed on to \code{\link{ggline}}
+\item \code{weight}: observation weights
 }}
 \seealso{\code{\link{gghistogram}}, \code{\link{density}}}
 \examples{m <- ggplot(movies, aesthetics=list(x=rating))
 ggdensity(m)
 qplot(length, data=movies, type="density")
+qplot(length, data=movies, type="density", weight=rating)
+qplot(length, data=movies, type="density", weight=rating/sum(rating))
 qplot(length, data=movies, type="density", log="x")
 qplot(log(length), data=movies, type="density")
 m <- ggplot(movies, Action ~ Comedy, aesthetics=list(x=rating), margins=TRUE)

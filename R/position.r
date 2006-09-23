@@ -5,6 +5,7 @@
 # @arguments not currently used
 # @keyword hplot 
 guides.position <- function(scale, ...) {
+	#if (scale$visible == FALSE) return(NULL)
 	position <- if(output(scale) == "x") "bottom" else "left"
 	ggaxis(breaks(scale), labels(scale), position, range(scale))
 }
@@ -57,6 +58,7 @@ labels.ps_double <- function(object, ...) {
 }
 
 guides.ps_double <- function(scale, ...) {
+	#if (scale$visible == FALSE) return()
 	list(
 		x = ggaxis(breaks(scale)$x, labels(scale)$x, "bottom", range(scale)$x),
 		y = ggaxis(breaks(scale)$y, labels(scale)$y, "left",   range(scale)$y)

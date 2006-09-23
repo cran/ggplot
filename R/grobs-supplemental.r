@@ -9,11 +9,11 @@
 # @arguments not used
 grob_grid <- function(aesthetics, xbreaks, ybreaks, fill=ggopt()$grid.fill, colour=ggopt()$grid.colour, ...) {
 	gp <- gpar(fill=fill, col=colour)
-	gTree(children = gList(
-		rectGrob(gp=gpar(fill=fill, col=NA)),
-		segmentsGrob(xbreaks, unit(0, "npc"), xbreaks, unit(1, "npc"), gp = gp, default.units="native"),
-		segmentsGrob(unit(0, "npc"), ybreaks, unit(1, "npc"), ybreaks, gp = gp, default.units="native"),
-		rectGrob(gp=gpar(col=colour, lwd=3, fill=NA))
+	gTree(name = "grill", children = gList(
+		rectGrob(gp=gpar(fill=fill, col=NA), name="grill-background"),
+		segmentsGrob(xbreaks, unit(0, "npc"), xbreaks, unit(1, "npc"), gp = gp, default.units="native", name="grill-vertical"),
+		segmentsGrob(unit(0, "npc"), ybreaks, unit(1, "npc"), ybreaks, gp = gp, default.units="native", name="grill-horizontal"),
+		rectGrob(gp=gpar(col=colour, lwd=3, fill=NA), name="grill-border")
 	))	
 }
 
@@ -37,7 +37,7 @@ ggaxis <- function(at, labels, position="right", scale=c(0,1)) {
 	ticks_grob <- ggaxis_ticks(at, position)
 	labels_grob <- ggaxis_labels(at, labels, position)
 	
-	gTree(childrenvp=ggaxis_vp(position, labels, scale), children=gList(ticks_grob, labels_grob), gp=gpar(col="grey50"))
+	gTree(childrenvp=ggaxis_vp(position, labels, scale), children=gList(ticks_grob, labels_grob), gp=gpar(col=ggopt()$axis.colour), name="axis")
 }
  
 # Axis viewport path
@@ -63,10 +63,10 @@ ggaxis_line <- function(at, position) {
 	ends <- unit(range(at), "native")
 	
 	switch(position,
-		top =    linesGrob(ends, unit(c(0,0), "npc"), name = "major", vp=vp),
-		bottom = linesGrob(ends, unit(c(1,1), "npc"), name = "major", vp=vp),
-		left =   linesGrob(unit(c(1,1), "npc"), ends, name = "major", vp=vp),
-		right =  linesGrob(unit(c(0,0), "npc"), ends, name = "major", vp=vp),
+		top =    linesGrob(ends, unit(c(0,0), "npc"), name = "axis-major", vp=vp),
+		bottom = linesGrob(ends, unit(c(1,1), "npc"), name = "axis-major", vp=vp),
+		left =   linesGrob(unit(c(1,1), "npc"), ends, name = "axis-major", vp=vp),
+		right =  linesGrob(unit(c(0,0), "npc"), ends, name = "axis-major", vp=vp)
 	)
 	
 }
@@ -82,9 +82,9 @@ ggaxis_ticks <- function(at, position) {
 	vp <- axis_vp_path(position, "ticks")
 	switch(position,
 		top =    ,
-		bottom = segmentsGrob(unit(at, "native"), unit(0, "npc"), unit(at, "native"), unit(1, "npc"), name = "ticks", vp=vp),
+		bottom = segmentsGrob(unit(at, "native"), unit(0, "npc"), unit(at, "native"), unit(1, "npc"), vp=vp, name="axis-ticks"),
 		left =   ,
-		right =  segmentsGrob(unit(0, "npc"), unit(at, "native"), unit(1, "npc"), unit(at, "native"), name = "ticks", vp=vp),
+		right =  segmentsGrob(unit(0, "npc"), unit(at, "native"), unit(1, "npc"), unit(at, "native"), vp=vp, name="axis-ticks")
 	)	
 }
 
@@ -100,10 +100,10 @@ ggaxis_labels <- function(at, labels, position) {
 	vp <- axis_vp_path(position, "labels")
 	
 	switch(position,
-		top =    textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, name = "labels", vp=vp),
-		bottom = textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, name = "labels", vp=vp),
-		left =   textGrob(labels, unit(1, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, name = "labels", vp=vp),
-		right =  textGrob(labels, unit(1, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, name = "labels", vp=vp),
+		top =    textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels"),
+		bottom = textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels"),
+		left =   textGrob(labels, unit(1, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels"),
+		right =  textGrob(labels, unit(1, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels")
 	)	
 }
 
@@ -130,7 +130,7 @@ ggaxis_vp <- function(position, labels, scale=c(0,1)) {
 		top =    grid.layout(nrow=2, ncol=1, heights=unit.c(label_size, tick_size), widths=unit(1,"npc")),
 		bottom = grid.layout(nrow=2, ncol=1, heights=unit.c(tick_size, label_size), widths=unit(1,"npc")),
 		left =   grid.layout(nrow=1, ncol=2, widths=unit.c(label_size, tick_size), heights=unit(1,"npc")),
-		right =  grid.layout(nrow=1, ncol=2, widths=unit.c(tick_size, label_size), heights=unit(1,"npc")),
+		right =  grid.layout(nrow=1, ncol=2, widths=unit.c(tick_size, label_size), heights=unit(1,"npc"))
 	)
 
 	vp_top <- switch(position,

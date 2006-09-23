@@ -11,7 +11,7 @@
 \description{
 Transform scale with a monotone function
 }
-\usage{scale_continuous(variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0, 0), breaks=NULL, to=NULL)}
+\usage{scale_continuous(variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0, 0), breaks=NULL, to=NULL, ...)}
 \arguments{
 \item{variable}{variable name}
 \item{name}{name of the scale (used in the legend)}
@@ -20,6 +20,7 @@ Transform scale with a monotone function
 \item{expand}{expansion factor for guides}
 \item{breaks}{manually specified breaks to use}
 \item{to}{if non-null, scale variable to this range after transformation}
+\item{...}{}
 }
 \value{modified plot object}
 \details{You shouldn't call this function yourself.  Please use one of:

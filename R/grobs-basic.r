@@ -78,11 +78,13 @@ grob_point <- function(aesthetics, unique=TRUE, ...) {
   if (length(aesthetics$x) + length(aesthetics$y) == 0) return();
 	aesthetics <- aesdefaults(aesthetics, list(colour="black", size=2, shape=16, rotation=0), ...)
   
-	if (unique) aesthetics <- unique(data.frame(aesthetics))
-	if (length(aesthetics$x) + length(aesthetics$y)==0) return()
+	if (unique) { 
+		aesthetics <- unique(data.frame(aesthetics))
+		aesthetics <- lapply(aesthetics, function(x) if (is.factor(x)) as.character(x) else x)
+	}
 	
 	pointsGrob(
-		aesthetics$x, aesthetics$y, size=unit(aesthetics$size, "mm"), pch=aesthetics$shape, gp = gpar(col=as.character(aesthetics$colour), rot=aesthetics$rotation)
+		aesthetics$x, aesthetics$y, size=unit(aesthetics$size, "mm"), pch=aesthetics$shape, gp = gpar(col=as.character(aesthetics$colour), rot=aesthetics$rotation, cex=aesthetics$size)
 	)
 }
 
@@ -102,7 +104,7 @@ grob_point <- function(aesthetics, unique=TRUE, ...) {
 #   \item \code{slope}:slope(s) of line, set to Inf
 #   \item \code{colour}:line colour
 #   \item \code{size}:line thickness
-#   \item \code{line_tyep}:line type
+#   \item \code{linetype}:line type
 # 	\item \code{range}: x (or y if slope infinite) range to draw the line.  This is sometimes necessary because ggplot isn't smart enough to calculate the entire range of the data
 # }
 # 
@@ -129,7 +131,7 @@ grob_abline <- function(aesthetics, intercept=0, slope=1, range=c(NA, NA), ...) 
 	aesthetics <- mapply(build_line, intercept, slope, SIMPLIFY=FALSE)
 	gTree(children = do.call(gList,
 		lapply(aesthetics, grob_line, ...)
-	))
+	)) # , name="abline"
 }
 
 
@@ -172,7 +174,7 @@ grob_vline <- function(aesthetics, position=0, range=c(NA, NA), ...) {
 	aesthetics <- mapply(build_line, position, SIMPLIFY=FALSE)
 	gTree(children = do.call(gList,
 		lapply(aesthetics, grob_line, ...)
-	))
+	)) # , name="vline"
 }
 
 # Grob function: hline
@@ -214,7 +216,7 @@ grob_hline <- function(aesthetics, position=0, range=c(NA, NA), ...) {
 	aesthetics <- mapply(build_line, position, SIMPLIFY=FALSE)
 	gTree(children = do.call(gList,
 		lapply(aesthetics, grob_line, ...)
-	))
+	)) # , name="hline"
 }
 
 # Grob function: jittered points
@@ -242,8 +244,8 @@ grob_hline <- function(aesthetics, position=0, range=c(NA, NA), ...) {
 # Other options:
 # 
 # \itemize{
-#   \item \code{xjitter}:degree of jitter in x direction, see \code{\link{jitter} for details, defaults to 1}
-#   \item \code{yjitter}:degree of jitter in y direction, see \code{\link{jitter} for details, defaults to 0}
+#   \item \code{xjitter}:degree of jitter in x direction, see \code{\link{jitter} for details, defaults to 1 if the x variable is a factor, 0 otherwise}
+#   \item \code{yjitter}:degree of jitter in y direction, see \code{\link{jitter} for details, defaults to 1 if the y variable is a factor, 0 otherwise}
 # }
 # 
 # @arguments the plot object to modify
@@ -256,10 +258,15 @@ grob_hline <- function(aesthetics, position=0, range=c(NA, NA), ...) {
 #X ggjitter(ggboxplot(p))
 #X ggjitter(ggboxplot(p), xjitter=2)
 #X ggjitter(ggboxplot(p), yjitter=1)
+#X p <- ggplot(movies, aes=list(x=mpaa, y=factor(Action)))
+#X ggjitter(p)
 ggjitter <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("jitter", plot, aesthetics, ..., data=data)
 }
-grob_jitter <- function(aesthetics, xjitter=1, yjitter=0, ...) {
+grob_jitter <- function(aesthetics, xjitter, yjitter, ...) {
+	if (missing(xjitter)) xjitter <- (resolution(aesthetics$x) == 1) * 1
+	if (missing(yjitter)) yjitter <- (resolution(aesthetics$y) == 1) * 1
+
 	aesthetics <- aesdefaults(aesthetics, list(), ...)
 	aesthetics$x <- jitter(aesthetics$x, xjitter)
 	aesthetics$y <- jitter(aesthetics$y, yjitter)
@@ -308,7 +315,7 @@ ggtext <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 }
 grob_text  <- function(aesthetics, justification="centre", ...) {
 	aesthetics <- aesdefaults(aesthetics, list(colour="black", size=1, rotation=0), ...)
-	textGrob(aesthetics$label, aesthetics$x, aesthetics$y, default.units="native", just=justification, rot=aesthetics$rotation, gp=gpar(col=as.character(aesthetics$colour), cex=aesthetics$size))
+	textGrob(aesthetics$label, aesthetics$x, aesthetics$y, default.units="native", just=justification, rot=aesthetics$rotation, gp=gpar(col=as.character(aesthetics$colour), cex=aesthetics$size)) # , name="text"
 }
 
 
@@ -359,21 +366,21 @@ ggpath <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 }
 grob_path  <- function(aesthetics, ...) {
   if (length(aesthetics$x) + length(aesthetics$y) == 0) return();
-	aesthetics <- aesdefaults(aesthetics, list(id=1, colour="black", size=1, linetype=1), ...)
+	aesthetics <- aesdefaults(aesthetics, list(id=1, colour="black", size=1.5, linetype=1), ...)
 
 	longest <- max(sapply(aesthetics, length))
 	aesthetics <- lapply(aesthetics, rep, length=longest)
 	data <- data.frame(aesthetics)
+	data <- lapply(data, function(x) if (is.factor(x)) as.character(x) else x)
 
-	polygonGrob()
 	path <- function(data) {
 		n <- nrow(data)
 		if (n<2) return(NULL)
-		segmentsGrob(as.numeric(data$x[-n]), as.numeric(data$y[-n]),as.numeric(data$x[-1]),as.numeric(data$y[-1]), default.units="native", gp=gpar(col=as.character(data$colour), lwd=data$size, lty=data$linetype))
+		segmentsGrob(as.numeric(data$x[-n]), as.numeric(data$y[-n]),as.numeric(data$x[-1]),as.numeric(data$y[-1]), default.units="native", gp=gpar(col=as.character(data$colour), lwd=data$size, lty=data$linetype)) #, name="path"
 	}
 	segs <- by(data, data$id, path)
 	
-	gTree(children = do.call(gList, segs))
+	gTree(children = do.call(gList, segs)) # , name="paths"
 }
 
 # Grob function: polygon
@@ -413,7 +420,7 @@ ggpolygon <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 grob_polygon  <- function(aesthetics, ...) {
 	aesthetics <- aesdefaults(aesthetics, list(id=1, colour="black", size=1, pattern=1), ...)
 	
-	polygonGrob(aesthetics$x, aesthetics$y, default.units="native", gp=gpar(col=as.character(aesthetics$colour), fill=as.character(aesthetics$fill), lwd=aesthetics$lwd, pattern=aesthetics$pattern))
+	polygonGrob(aesthetics$x, aesthetics$y, default.units="native", gp=gpar(col=as.character(aesthetics$colour), fill=as.character(aesthetics$fill), lwd=aesthetics$lwd, pattern=aesthetics$pattern)) # , name="polygon"
 }
 
 # Grob function: line
@@ -462,7 +469,7 @@ grob_line  <- function(aesthetics, ...) {
   aesthetics <- aesdefaults(aesthetics, list(id=1,  colour="black", size=1, linetype=1), ...)
 
   if (length(aesthetics$x) == 1 ) {
-    return(linesGrob(x = unit(c(0, 1), "npc"), y=unit(c(0.5, 0.5), "npc"), gp=gpar(col=as.character(aesthetics$colour), lwd=aesthetics$size, lty=aesthetics$linetype)))
+    return(linesGrob(x = unit(c(0, 1), "npc"), y=unit(c(0.5, 0.5), "npc"), gp=gpar(col=as.character(aesthetics$colour), lwd=aesthetics$size, lty=aesthetics$linetype))) # , name="line"
   }
 
 	aesthetics <- data.frame(aesthetics)
@@ -477,7 +484,8 @@ grob_line  <- function(aesthetics, ...) {
 #
 # \itemize{
 #   \item \code{x}:x position (required)
-#   \item \code{y}:y position (required)
+#   \item \code{upper}: position of upper edge of ribbon  (required)
+#   \item \code{lower}: position of lower edge of ribbon (required)
 #   \item \code{id}:identifier variable used to break up into multiple paths
 #   \item \code{colour}:line colour (see \code{\link{sccolour}})
 # }
@@ -505,6 +513,7 @@ grob_line  <- function(aesthetics, ...) {
 #X }))
 #X p <- ggplot(mry, aesthetics = list(x=year, y=number, id=rating))
 #X ggribbon(p, aes=list(upper=number+5, lower=number-5), fill="white", colour=NA)
+#X ggribbon(p, aes=list(y=number, plus=5, minus=-5), fill="white", colour=NA)
 #X ggribbon(p, aes=list(upper=number*1.1, lower=number*0.9), fill="white", colour=NA)
 #X ggribbon(p, aes=list(upper=number+5, lower=number-5), fill="pink")
 #X ggribbon(p, aes=list(upper=number+5, lower=number-5, fill=rating), colour=NA)
@@ -513,21 +522,28 @@ ggribbon <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("ribbon", plot, aesthetics, ..., data=data)
 }
 pre_ribbon <- function(data, ...) {
-	data$y <- NULL
-	upper <- rename(data[, "lower" != names(data)], c(upper="y"))
-	lower <- rename(data[nrow(data):1, "upper" != names(data)], c(lower="y"))
+	if (!all(c("upper","lower") %in% names(data))) {
+		if (is.null(data$plus) && !is.null(data$minus)) data$plus <- -data$minus
+		if (!is.null(data$plus) && is.null(data$minus)) data$minus <- -data$plus
+		
+		upper <- data$y + data$plus
+		lower <- data$y + data$minus
+	} else {
+		upper <- data$upper
+		lower <- data$lower
+	}
 
-	data <- rbind(upper, lower)
-	data <- data.frame(data)
+	data <- data.frame(upper=upper, lower=lower, data)
+	data$y <- (data$upper + data$lower)/2
   data <- data[order(data$id), ]
+	data <- lapply(data, function(x) if (is.factor(x)) as.character(x) else x)
 
-	data
-	
+	as.data.frame(data)
 }
 grob_ribbon <- function(aesthetics, ...) {
 	aesthetics <- aesdefaults(aesthetics, list(colour=NA, fill="grey60", id=1), ...)
 	aesthetics <- as.data.frame(aesthetics)
-	grob_group(aesthetics, grob=grob_polygon, ...)
+	grob_group(aesthetics, grob="polygon", ...)
 }
 
 # Grob function: area
@@ -576,20 +592,21 @@ ggarea <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("area", plot, aesthetics, ..., data=data)
 }
 grob_area  <- function(aesthetics, ...) {
-	aesthetics <- aesdefaults(aesthetics, list(id=1, fill="grey80", colour=NA, line_type=1), ...)
+	aesthetics <- aesdefaults(aesthetics, list(id=1, fill="grey80", colour=NA, linetype=1), ...)
 
 	data <- as.data.frame(aesthetics)
 	data <- data[order(data$id, data$x), ]
+	data <- lapply(data, function(x) if (is.factor(x)) as.character(x) else x)
 
 	poly <- function(data) {
 		n <- nrow(data)
 		with(data, 
-			polygonGrob(c(min(x), x, max(x)), c(0, y, 0), default.units="native", gp=gpar(fill=as.character(fill), col=as.character(colour), lty=line_type))
+			polygonGrob(c(min(x), x, max(x)), c(0, y, 0), default.units="native", gp=gpar(fill=as.character(fill), col=as.character(colour), lty=linetype))
 		)
 	}
 	segs <- by(data, data$id, poly)
 	
-	gTree(children=do.call(gList, segs))
+	gTree(children=do.call(gList, segs)) # , name="area"
 }
 
 # Grob function: rectangle
@@ -632,7 +649,8 @@ ggrect <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 }
 grob_rect   <- function(aesthetics, justification = c("centre","top"), ...) {
 	aesthetics <- aesdefaults(aesthetics, list(fill="grey50", height=aesthetics$y, width=resolution(aesthetics$x)*0.9, colour="NA"), ...)
-	rectGrob(aesthetics$x, aesthetics$y, width=aesthetics$width, height=aesthetics$height, default.units="native", just=justification, gp=gpar(col=as.character(aesthetics$colour), fill=as.character(aesthetics$fill)))
+	
+	rectGrob(aesthetics$x, aesthetics$y, width=aesthetics$width, height=aesthetics$height, default.units="native", just=justification, gp=gpar(col=as.character(aesthetics$colour), fill=as.character(aesthetics$fill))) #, name="rect"
 }
 
 
@@ -684,14 +702,14 @@ grob_rect   <- function(aesthetics, justification = c("centre","top"), ...) {
 #X ggbar(p, aes=list(fill=mpg), avoid="dodge", sort=TRUE)
 #X ggbar(p, avoid="stack", sort=TRUE)
 ggbar <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
-	plot <- pscontinuous(plot, "y", range=c(0,NA), expand=c(0.05,0))
+	plot <- pscontinuous(plot, "y", range=c(NA,NA), expand=c(0.05,0))
 	gg_add("bar", plot, aesthetics, ..., data=data)
 }
 
-pre_bar <- function(data, avoid="none", sort=FALSE, direction="vertical", ...) {
+pre_bar <- function(data, avoid="none", sort=FALSE, direction="vertical", width=resolution(data$x) * 0.9, ...) {
 	if (direction != "vertical") data[c("x","y")] <- data[c("y","x")]
 
-	data$width <- resolution(data$x) * 0.9
+	data$width <- width
 	if (avoid == "none") return(data)
 	
 	if (sort) {
@@ -704,24 +722,37 @@ pre_bar <- function(data, avoid="none", sort=FALSE, direction="vertical", ...) {
 		data$y <- unlist(tapply(data$y, data$x, cumsum))
 		data <- data[order(data$y, decreasing=TRUE), ]
 	} else if (avoid == 'dodge') {
-		data$width <- data$width / max(tapply(data$y, data$x, length))
+		data$width <- data$width / max(tapply(data$y, data$x, length), na.rm=TRUE)
 	}
 	if (direction != "vertical") data[c("x","y")] <- data[c("y","x")]
 	data
 }
 
-grob_bar   <- function(aesthetics, avoid="none", direction="vertical", ...) {
-	aesthetics <- aesdefaults(aesthetics, list(fill="grey50", colour="NA"), ...)
-	aesthetics$height <- aesthetics$y
+grob_bar   <- function(aesthetics, avoid="none", direction="vertical", justification=c("centre","top"), ...) {
+	aesthetics <- aesdefaults(aesthetics, list(fill="grey50", colour="NA", height = aesthetics$y), ...)
 
+	aesthetics <- position_adjust(aesthetics, avoid=avoid, direction=direction)
+
+	rectGrob(aesthetics$x, aesthetics$y, width=aesthetics$width, height=aesthetics$height, default.units="native", just=justification, gp=gpar(col=as.character(aesthetics$colour), fill=as.character(aesthetics$fill))) #, name="bar"
+}
+
+# Position adjust
+# This function extracts out some of the code necessary to perform
+# position adjustments (eg. stack, dodge).  More needs to be done
+# 
+# @arguments list of aesthetics
+# @arguments avoid method to use
+# @arguments direction (currently only works with vertical)
+# @arguments adjustment factor if multiple rows correspond to same grob (awful hack)
+# @keyword internal 
+position_adjust <- function(aesthetics, avoid, direction, adjust=1) {
 	if (direction != "vertical") aesthetics[c("height", "width")] <- aesthetics[c("width", "height")]
 	if (avoid == "dodge") {
-		n <- max(tapply(aesthetics$y, aesthetics$x, length))
-		aesthetics$x <- as.numeric(aesthetics$x) + unlist(tapply(aesthetics$y, aesthetics$x, function(x) (1:n - n/2)[1:length(x)])) * aesthetics$width - aesthetics$width / 2 
+		n <- max(tapply(aesthetics$y, aesthetics$x, length)) / adjust
+
+		aesthetics$x <- as.numeric(aesthetics$x) + unlist(tapply(aesthetics$y, aesthetics$x, function(x) rep(1:n - n/2, adjust)[1:length(x)])) * aesthetics$width - aesthetics$width / 2 
 	}
-
-
-	rectGrob(aesthetics$x, aesthetics$y, width=aesthetics$width, height=aesthetics$height, default.units="native", just=c("centre","top"), gp=gpar(col=as.character(aesthetics$colour), fill=as.character(aesthetics$fill)))
+	aesthetics
 }
 
 
@@ -790,7 +821,7 @@ grob_tile  <- function(aesthetics, ...) {
 		colour = NA
 	), ...)
 	
-	grob_rect(aesthetics, justification=c("centre","centre"))
+	grob_rect(aesthetics, justification=c("centre","centre")) #, name="tile"
 }
 
 # Resolution

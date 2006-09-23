@@ -23,6 +23,7 @@ Aesthetic mappings that this grob function understands:
 \itemize{
 \item \code{x}:x position (required)
 \item \code{y}:y position (required)
+\item \code{weight}: observation weights
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -41,5 +42,6 @@ Other options:
 \examples{m <- ggplot(movies, aesthetics=list(y=length, x=rating))
 gghexagon(m)
 gghexagon(m, xbins=50)
-gghexagon(m, style="lattice")}
+gghexagon(m, style="lattice")
+gghexagon(m, aes=list(weight=votes))}
 \keyword{hplot}

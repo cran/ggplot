@@ -12,6 +12,7 @@
 # 
 # \itemize{
 #   \item \code{x}:x position (required)
+#   \item \code{weight}: observation weights
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -42,6 +43,9 @@
 #X gghistogram(m)
 #X gghistogram(m, scale="freq")
 #X gghistogram(m, colour="darkgreen", fill="white") 
+#X qplot(rating, data=movies, type="histogram")
+#X qplot(rating, weight=votes, data=movies, type="histogram")
+#X qplot(rating, weight=votes, data=movies, type=c("histogram", "density"))
 gghistogram <- function(plot = .PLOT, aesthetics=list(), scale="prob", ..., data=NULL) {
 	plot <- pscontinuous(plot, "y", range=c(0,NA), expand=c(0.05,0))
 	plot <- pscontinuous(plot, "x", expand=c(0.15, 0))
@@ -51,8 +55,14 @@ gghistogram <- function(plot = .PLOT, aesthetics=list(), scale="prob", ..., data
 	gg_add("histogram", plot, aesthetics, scale=scale, ..., data=data)
 }
 pre_histogram <- function(data, breaks=20, scale="prob", ...) {
+	if (is.function(breaks)) breaks <- breaks(data$x)
 	h <- hist(data$x, breaks=breaks, freq=FALSE, plot=FALSE, ...)
-
+	
+	if (!is.null(data$weight)) {
+		h$counts <- tapply(data$weight, cut(data$x, h$breaks), sum)
+	  h$density <- h$counts/diff(h$breaks)
+	}
+	
 	if (is.character(scale) && scale == "prob") {
 		y <- h$density
 	} else if (is.numeric(scale) && length(scale == 2)){
@@ -61,11 +71,12 @@ pre_histogram <- function(data, breaks=20, scale="prob", ...) {
 		y <- h$counts
 	}
 	
-	data.frame(y = y, x=h$breaks[-1], width = diff(h$breaks), height=y)
+	cbind(
+		data.frame(y = y, x=h$breaks[-1], width = diff(h$breaks), height=y),
+		data[rep(1, length(h$breaks) - 1),intersect(c("fill"), names(data)), drop=FALSE]
+	)
 }
-grob_histogram <- function(aesthetics, ...) {
-	grob_rect(aesthetics, justification=c("right", "top"), ...)
-}
+grob_histogram <- function(...) grob_bar(..., justification=c("right", "top"))
 
 # Grob function: quantiles
 # Add quantile lines from a quantile regression
@@ -78,6 +89,7 @@ grob_histogram <- function(aesthetics, ...) {
 # \itemize{
 #   \item \code{x}:x position (required)
 #   \item \code{y}:y position (required)
+#   \item \code{weight}: observation weights
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -106,11 +118,12 @@ ggquantile <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("quantile", plot, aesthetics, ..., data=data)
 }
 grob_quantile <- function(aesthetics, quantiles=c(0.05, 0.25, 0.5, 0.75, 0.95), formula=y ~ splines::ns(x, 5), ...) {
+	aesthetics <- aesdefaults(aesthetics, list(weight=rep(1, length(aesthetics$y))), ...)
 	if (!require(quantreg, quietly=TRUE)) stop("You need to install the quantreg package!")
 	
 	xseq <- seq(min(aesthetics$x, na.rm=TRUE), max(aesthetics$x, na.rm=TRUE), length=30)
 	
-	model <- rq(formula, data=aesthetics, tau=quantiles) #
+	model <- rq(formula, data=aesthetics, tau=quantiles, weight=weight) #
 	yhats <- predict(model, data.frame(x=xseq))
 	qs <- data.frame(y = as.vector(yhats), x = xseq, id = rep(quantiles, each=length(xseq)))
 	qs$size <- (0.5 - abs(0.5 - qs$id))*5 + 0.5
@@ -126,6 +139,7 @@ grob_quantile <- function(aesthetics, quantiles=c(0.05, 0.25, 0.5, 0.75, 0.95), 
 # \itemize{
 #   \item \code{x}:x position (required)
 #   \item \code{y}:y position (required)
+#   \item \code{weight}: observation weights
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -137,7 +151,9 @@ grob_quantile <- function(aesthetics, quantiles=c(0.05, 0.25, 0.5, 0.75, 0.95), 
 # Other options:
 # 
 # \itemize{
-#   \item \code{breaks}:how to break up the x axis
+#   \item \code{breaks}:how to break up the x axis (only used if not already a factor)
+#   \item \code{orientation}: whether boxplots should be horizontal or vertical.  
+#     If missing will automatically decide based on which variable is a factor.
 #   \item other arguments passed \code{\link{boxplot}}
 # }
 # 
@@ -148,16 +164,30 @@ grob_quantile <- function(aesthetics, quantiles=c(0.05, 0.25, 0.5, 0.75, 0.95), 
 # @keyword hplot
 # @seealso \code{\link{ggquantile}} for a continuous analogue of the boxplot
 #X p <- ggplot(mtcars, aesthetics=list(y=mpg, x=factor(cyl)))
+#X p2 <- ggplot(mtcars, aesthetics=list(x=mpg, y=factor(cyl)))
 #X ggpoint(p)
 #X ggboxplot(p)
+#X ggboxplot(p2)
 #X ggboxplot(p, fill="pink", colour="green")
 #X ggpoint(ggboxplot(p))
+#X ggboxplot(p)
 ggboxplot <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("boxplot", plot, aesthetics, ..., data=data)
 }
-grob_boxplot <- function(aesthetics, breaks=length(unique(aesthetics$x)), ...) {
-	aesthetics <- aesdefaults(aesthetics, list(fill="white", colour="grey50"), ...)
+grob_boxplot <- function(aesthetics, breaks=length(unique(aesthetics$x)), orientation, ...) {
+
+	aesthetics <- aesdefaults(aesthetics, list(fill="white", colour="grey50", weight=rep(1, length(aesthetics$x))), ...)
+	swap <- function(list) { 
+	  if (orientation == "vertical") return(list)
+	  rename(list, c(x="y", y="x", height="width", width="height"))
+	}
+	just <- function() switch(orientation, 
+	  vertical = c("centre","bottom"), 
+	  horizontal = c("left", "centre"))
 	
+	if (missing(orientation)) orientation <- if(resolution(aesthetics$y) == 1) "horizontal" else "vertical" 
+	
+	aesthetics <- swap(aesthetics)
 	aesthetics$x <- as.numeric(aesthetics$x)
 	n <- length(aesthetics$x)
 	breakpoints <- cut(aesthetics$x, breaks, labels=FALSE)
@@ -166,11 +196,11 @@ grob_boxplot <- function(aesthetics, breaks=length(unique(aesthetics$x)), ...) {
 		max =    tapply(aesthetics$x, breakpoints, max, na.rm=TRUE),
 		median = tapply(aesthetics$x, breakpoints, median, na.rm=TRUE),
 		width =  tapply(aesthetics$x, breakpoints, function(x) diff(range(x, na.rm=TRUE))) * 0.5 + 0.5,
-		colour = tapply(rep(aesthetics$colour,length=n), breakpoints, function(x) x[1]),
-		fill =   tapply(rep(aesthetics$fill,  length=n), breakpoints, function(x) x[1]),
+		colour = tapply(rep(as.character(aesthetics$colour),length=n), breakpoints, function(x) x[1]),
+		fill =   tapply(rep(as.character(aesthetics$fill),  length=n), breakpoints, function(x) x[1])
 	)
-	
-	boxes <- boxplot(aesthetics$y ~ breakpoints, plot=FALSE, ...)
+
+	boxes <- boxplot.weighted.formula(aesthetics$y ~ breakpoints, weights=aesthetics$weight, plot=FALSE, ...)
 	# lower whisker, lower hinge, median, upper hinge and upper whisker
 	
 	outliers <- list(y = boxes$out, x = as.vector(xrange$median[boxes$group]), colour="red")
@@ -180,13 +210,14 @@ grob_boxplot <- function(aesthetics, breaks=length(unique(aesthetics$x)), ...) {
 	medians <- list(x= xrange$median, width=xrange$width, y=boxes$stats[3,], height=unit(0.8,"mm"), colour=xrange$colour, fill=xrange$colour)
 	
 	gTree(children = gList(
-		grob_path(uwhiskers),
-		grob_path(lwhiskers),
-		grob_rect(hinges, justification=c("centre", "bottom")),
-		grob_rect(medians, justification=c("centre", "bottom")),
-		grob_point(outliers)
-	))
+		grob_path(swap(uwhiskers)),
+		grob_path(swap(lwhiskers)),
+		grob_rect(swap(hinges), justification=just()),
+		grob_rect(swap(medians), justification=just()),
+		grob_point(swap(outliers))
+	)) # , name="boxplot"
 }
+
 
 # Grob function: smooth
 # Add a smooth line to a plot
@@ -210,6 +241,7 @@ grob_boxplot <- function(aesthetics, breaks=length(unique(aesthetics$x)), ...) {
 #   \item \code{y}:y position (required)
 #   \item \code{size}:size of the point, in mm (see \code{\link{scsize})}
 #   \item \code{colour}:point colour (see \code{\link{sccolour})}
+#   \item \code{weight}: observation weights
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -242,23 +274,23 @@ ggsmooth <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("smooth", plot, aesthetics, ..., data=data)
 }
 grob_smooth <- function(aesthetics, method=loess, formula=y~x, se = TRUE, ...) {
-	aesthetics <- aesdefaults(aesthetics, list(colour="black", size=1), ...)
+	aesthetics <- aesdefaults(aesthetics, list(colour="black", size=1, weight=rep(1, length(aesthetics$x))), ...)
 	xseq <- seq(min(aesthetics$x, na.rm=TRUE), max(aesthetics$x, na.rm=TRUE), length=80)
 	method <- match.fun(method)
 
 	colour <- as.character(uniquedefault(aesthetics$colour, "black"))
 	size <- uniquedefault(aesthetics$size, 1)
 
-	model <- method(formula, data=aesthetics, ...)
+	model <- method(formula, data=aesthetics, ..., weight=weight)
 	pred <- predict(model, data.frame(x=xseq), se=se)
-	
+
 	if (se) {
 		gTree(children=gList(
 			grob_path(list(y = as.vector(pred$fit), x = xseq, colour=colour, size=size)),
 			grob_path(list(y = as.vector(pred$fit + 2 * pred$se), x = xseq, colour="grey80")),
 			grob_path(list(y = as.vector(pred$fit - 2 * pred$se), x = xseq, colour="grey80")),
 			grob_ribbon(list(y = c(pred$fit + 2 * pred$se, rev(pred$fit - 2 * pred$se)), x = c(xseq,rev(xseq))), colour=NA, fill=alpha("grey50", 0.2))
-		))
+		)) # , name="smooth"
 	} else {
 		grob_path(list(y = as.vector(pred), x = xseq, colour=colour, size=size))
 	}
@@ -320,7 +352,7 @@ grob_contour <- function(aesthetics, nlevels=10, levels, ...) {
 	
 	clines <- contourLines(x = gridx$unique, y = gridy$unique, z = gridz, nlevels = nlevels, levels = levels)
 		
-	gTree(children = do.call(gList, lapply(clines, grob_path, ...)))
+	gTree(children = do.call(gList, lapply(clines, grob_path, ...))) # , name="contour"
 }
 
 
@@ -331,6 +363,7 @@ grob_contour <- function(aesthetics, nlevels=10, levels, ...) {
 #
 # \itemize{
 #   \item \code{x}:x position (required)
+#   \item \code{weight}: observation weights
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -347,6 +380,7 @@ grob_contour <- function(aesthetics, nlevels=10, levels, ...) {
 # 	\item \code{kernel}: kernel used for density estimation, see \code{\link{density}}
 # 		for details
 # 	\item other aesthetic properties passed on to \code{\link{ggline}}
+#   \item \code{weight}: observation weights
 # }
 # 
 # @arguments the plot object to modify
@@ -358,6 +392,8 @@ grob_contour <- function(aesthetics, nlevels=10, levels, ...) {
 #X m <- ggplot(movies, aesthetics=list(x=rating))
 #X ggdensity(m)
 #X qplot(length, data=movies, type="density")
+#X qplot(length, data=movies, type="density", weight=rating)
+#X qplot(length, data=movies, type="density", weight=rating/sum(rating))
 #X qplot(length, data=movies, type="density", log="x")
 #X qplot(log(length), data=movies, type="density")
 #X m <- ggplot(movies, Action ~ Comedy, aesthetics=list(x=rating), margins=TRUE)
@@ -370,18 +406,17 @@ ggdensity <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("density", plot, aesthetics, ..., data=data)
 }  
 pre_density <- function(data, adjust=1, kernel="gaussian", ...) {
-	dens <- density(data$x, adjust=adjust, kernel=kernel)
-	dens$'.type' <- "density"
+	if (is.null(data$weight)) data$weight <- rep(1/length(data$x), length(data$x))
 
-	rug <- data.frame(x = jitter(data$x), y=-0.5, .type="rug")
-	rbind(as.data.frame(dens[c("x","y",".type")]), rug)
+	dens <- density(data$x, adjust=adjust, kernel=kernel, weight=data$weight)
+	densdf <- as.data.frame(dens[c("x","y")])
+	aestheticvars <- intersect(c("colour","linetype","size"), names(data))
+	densdf[,aestheticvars] <- data[1,aestheticvars]
+	
+	densdf
 }
 grob_density <- function(aesthetics, ...) {
-	aesthetics <- data.frame(aesthetics)
-	dens <- subset(aesthetics, .type == "density")
-	rug <- subset(aesthetics, .type == "rug")
-
-	grob_line(dens, ...)
+	grob_line(aesthetics, ...)
 }
 
 
@@ -427,7 +462,9 @@ gg2density <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 }
 
 grob_2density <- function(aesthetics, ...) {
-	dens <- MASS::kde2d(aesthetics$x, aesthetics$y)
+	df <- data.frame(aesthetics[, c("x", "y")])
+	df <- df[complete.cases(df), ]
+	dens <- do.call(MASS::kde2d, df)
 	densdf <- data.frame(expand.grid(x = dens$x, y = dens$y), z=as.vector(dens$z))
 	grob_contour(densdf, ...)
 }
@@ -472,16 +509,34 @@ grob_2density <- function(aesthetics, ...) {
 # @keyword hplot
 #X p <- ggplot(mtcars, aesthetics=list(y=wt, x=qsec, id=cyl, colour=cyl))
 #X gggroup(p)
-#X gggroup(ggpoint(p), grob=grob_smooth, se=FALSE, span=1)
-#X gggroup(ggpoint(p), aes=list(id=cyl, size=cyl), grob=grob_smooth, span=1)
+#X gggroup(p, grob="density")
+#X gggroup(p, grob="histogram", aes=list(fill=cyl))
+#X gggroup(ggpoint(p), grob="smooth", se=FALSE, span=1)
+#X gggroup(ggpoint(p), aes=list(id=cyl, size=cyl), grob="smooth", span=1)
 gggroup <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("group", plot, aesthetics, ..., data=data)
 }
-grob_group <- function(aesthetics, grob = grob_point, ...) {
-	if(length(aesthetics$id) != length(aesthetics$x)) stop("You need to set an id variable to use grob_group")
-	parts <- by(aesthetics, aesthetics$id, grob, ...)
+pre_group <- function(data, grob="point", ...) {
+	if(length(data$id) != length(data$x)) stop("You need to set an id variable to use grob_group")
 	
-	gTree(children = do.call(gList, parts))	
+	pre <- paste("pre", grob, sep="_")
+	if (exists(pre)) {
+		pref <- get(pre)
+		do.call(rbind, by(data, data$id, function(data) cbind(pref(data, ...), id=data$id[1])))
+	} else {
+		data
+	}
+	
+}
+
+grob_group <- function(aesthetics, grob = "point", separate=TRUE, ...) {
+	grobf <- get(paste("grob", grob, sep="_"))
+	if (separate) {
+		parts <- by(aesthetics, aesthetics$id, function(data) grobf(data, ...))
+		gTree(children = do.call(gList, parts)) # , name="group"	
+	} else {
+		grobf(aesthetics, ...)
+	}
 }
 
 
@@ -497,6 +552,7 @@ grob_group <- function(aesthetics, grob = grob_point, ...) {
 # \itemize{
 #   \item \code{x}:x position (required)
 #   \item \code{y}:y position (required)
+#   \item \code{weight}: observation weights
 # }
 # 
 # These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -522,13 +578,20 @@ grob_group <- function(aesthetics, grob = grob_point, ...) {
 #X gghexagon(m)
 #X gghexagon(m, xbins=50)
 #X gghexagon(m, style="lattice")
+#X gghexagon(m, aes=list(weight=votes))
 gghexagon <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("hexagon", plot, aesthetics, ..., data=data)
 }
 grob_hexagon <- function(aesthetics, xbins=30, ...) {
 	if (!require("hexbin", quietly=TRUE)) stop("You need to install the hexbin package !")
 	
-	hexes <- hexbin(aesthetics$x, aesthetics$y, xbins=xbins)
+	if (!is.null(aesthetics$weight)) {
+		hexes <- hexbin(aesthetics$x, aesthetics$y, xbins=xbins, ID=TRUE)
+		cell <- hexes@cID
+		hexes@count <- as.vector(tapply(aesthetics$weight, cell, sum))
+	} else {
+		hexes <- hexbin(aesthetics$x, aesthetics$y, xbins=xbins)		
+	}
 
 	grid.grabExpr(grid.hexagons(hexes, ...))
 }

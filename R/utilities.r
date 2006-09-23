@@ -35,3 +35,17 @@ alpha <- function(colour, alpha) {
 	col[4, ] <- alpha
 	rgb(col[1,], col[2,], col[3,], col[4,])
 }
+
+# Apply with built in try
+# 
+# @keyword internal
+# @alias tryNULL
+tryapply <- function(list, fun, ...) {
+  compact(lapply(list, function(x) tryNULL(fun(x, ...))))
+}
+
+tryNULL <- function(expr)  {
+  result <- NULL
+  tryCatch(result <- expr, error=function(e){})
+  result
+}

@@ -33,6 +33,7 @@ Aesthetic mappings that this grob function understands:
 \item \code{y}:y position (required)
 \item \code{size}:size of the point, in mm (see \code{\link{scsize})}
 \item \code{colour}:point colour (see \code{\link{sccolour})}
+\item \code{weight}: observation weights
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or

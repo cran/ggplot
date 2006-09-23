@@ -6,9 +6,10 @@
 \description{
 Experimental template
 }
-\usage{ggdist(data, facets = . ~ .)}
+\usage{ggdist(data, vars=names(data), facets = . ~ .)}
 \arguments{
 \item{data}{}
+\item{vars}{}
 \item{facets}{}
 }
 

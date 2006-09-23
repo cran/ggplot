@@ -17,7 +17,9 @@ Create a manual scale
 }
 
 \details{This scale function allows you complete control over the
-scale.}
+scale.
+
+Supply labels and breaks to produce a legend.}
 \seealso{\code{\link{ggfluctuation}} for a use}
 \examples{}
 \keyword{hplot}

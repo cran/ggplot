@@ -6,10 +6,13 @@
 \description{
 Print generic for ggplot.  Plot on current graphics device.
 }
-\usage{print.ggplot(x, ...)}
+\usage{print.ggplot(x, newpage = is.null(vp), vp = NULL, save=ggopt()$save, ...)}
 \arguments{
 \item{x}{plot to display}
-\item{...}{other arguments passed on to \code{\link{ggplot_plot}}}
+\item{newpage}{draw new (empty) page first?}
+\item{vp}{viewport to draw plot in}
+\item{save}{other arguments passed on to \code{\link{ggplot_plot}}}
+\item{...}{}
 }
 
 \details{}

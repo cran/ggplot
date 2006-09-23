@@ -26,6 +26,7 @@ to plot the points.
 
 \itemize{
 \item \code{x}:x position (required)
+\item \code{weight}: observation weights
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -50,5 +51,8 @@ qplot(log(length), data=movies, type="histogram")
 m <- ggplot(movies, Action ~ Comedy, aesthetics=list(x=rating), margins=TRUE)
 gghistogram(m)
 gghistogram(m, scale="freq")
-gghistogram(m, colour="darkgreen", fill="white") }
+gghistogram(m, colour="darkgreen", fill="white") 
+qplot(rating, data=movies, type="histogram")
+qplot(rating, weight=votes, data=movies, type="histogram")
+qplot(rating, weight=votes, data=movies, type=c("histogram", "density"))}
 \keyword{hplot}

@@ -1,5 +1,3 @@
-
-
 # Scale: general continuous (incl. transformations)
 # Transform scale with a monotone function
 # 
@@ -35,9 +33,9 @@
 # @alias trans_inverse
 # @alias trans_none
 # @value modified plot object 
-scale_continuous <- function(variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0, 0), breaks=NULL, to=NULL) {
-	structure(
-		list(variable=variable, name=name, transform=transform, range=range, expand=expand, breaks=breaks, to=to), 
+scale_continuous <- function(variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0, 0), breaks=NULL, to=NULL, ...) {
+	#scale_new(match.call(), "continuous")
+	structure(list(variable=variable, name=name, transform=transform, range=range, expand=expand, breaks=breaks, to=to, visible=TRUE, ...), 
 		class = c("continuous", "scale")
 	)
 }
@@ -80,10 +78,13 @@ scale_continuous <- function(variable="x", name="", transform=trans_none, range=
 #X pscontinuous(p, "x", transform=trans_log10)
 #X pscontinuous(p, "x", transform=trans_log10, breaks=seq(10,30, 5))
 pscontinuous <- function(plot = .PLOT, variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0.05, 0), breaks=NULL) {
-	add_scale(plot,  position_continuous(variable=variable, name=name, expand=expand, transform=transform, range=range, breaks=breaks) )
+	sc <- position_continuous(variable=variable, name=name, expand=expand, transform=transform, range=range, breaks=breaks)
+	add_scale(plot, sc)
 }
 
 position_continuous <- function(variable="x", name="", transform=trans_none, range=c(NA,NA), expand=c(0, 0.5), breaks=NULL) {
+	range <- (transform[[1]])(range)
+
 	sc <- scale_continuous(variable=variable, expand=expand, name=name, transform=transform, range=range, breaks=breaks)
 	class(sc) <- c("position", class(sc))
 	sc
@@ -107,6 +108,7 @@ map_aesthetic.continuous <- function(scale, data, ...) {
 }
 "update<-.continuous" <- function(x, value) {
 	val <- (x$transform[[1]])(as.numeric(value[[input(x)]]))
+	
 	x$range[is.na(x$range)] <- range(val, na.rm=TRUE)[is.na(x$range)]
 	if(diff(x$range) == 0) x$range <- c(0.9, 1.1) * (x$range[1])
 	x

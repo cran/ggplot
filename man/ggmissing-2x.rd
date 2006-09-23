@@ -25,5 +25,5 @@ mmissing[sample(nrow(movies), 1000), sample(ncol(movies), 5)] <- NA
 ggmissing(mmissing)
 ggmissing(mmissing, order=FALSE, missing.only = FALSE)
 pscontinuous(ggmissing(mmissing, avoid="dodge"), "y", transform=trans_sqrt, range=c(0, NA))
-pscontinuous(ggmissing(mmissing), "y", transform=trans_log10, range=c(0, NA))}
+pscontinuous(ggmissing(mmissing), "y", transform=trans_log10, range=c(1, NA))}
 \keyword{hplot}

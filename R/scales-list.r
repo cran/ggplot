@@ -22,7 +22,9 @@ input.scales <- function(scale)  lapply(scale, input)
 output.scales <- function(scale) lapply(scale, output)
 print.scales <- function(x, ...) str(x)
 range.scales <- function(scales, ...) position_apply(scales, range)
-guides.scales <- function(scale, ...) position_apply(scale, guides)
+guides.scales <- function(scale, ...) {
+	position_apply(scale, guides)
+}
 
 # Add new scale
 # Add new scale to list.  
@@ -44,7 +46,7 @@ guides.scales <- function(scale, ...) position_apply(scale, guides)
 # data formats it could recieve:
 # 
 #  * a single data frame (representing one panel from one grob function)
-#  * a matrix of data frames (all panels from a grob function))
+#  * a matrix of data frames (all panels from a grob function)
 #  * a list of matrix of data frames (all panels from all grob functions)
 # 
 # @keyword hplot 

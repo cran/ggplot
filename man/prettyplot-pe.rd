@@ -9,16 +9,15 @@ Build a plot with all the usual bits and pieces.
 \usage{prettyplot(plot, plotgrob)}
 \arguments{
 \item{plot}{plot}
-\item{plotgrob}{title (character vector)}
-\item{}{x axis label (character vector)}
-\item{}{y axis label (character vector)}
-\item{}{legend grobs (list of grobs)}
+\item{plotgrob}{plot grob}
 }
 
 \details{As well as the plotting area, a plot need:
 \item main title
 \item x and y axis labels
 \item space for legends (currently on the right hand side)
+
+These are stored as options in the plot object.
 
 This function sets up the appropriate viewports and packs the
 various components in.  The viewport is set up so that each component

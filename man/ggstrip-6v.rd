@@ -6,12 +6,12 @@
 \description{
 Grob for strip labels
 }
-\usage{ggstrip(text, horizontal=TRUE, fill=ggopt()$strip.fill, colour=ggopt()$strip.colour)}
+\usage{ggstrip(text, horizontal=TRUE, strip.gp=ggopt()$strip.gp, text.gp=ggopt()$strip.text.gp)}
 \arguments{
 \item{text}{text to display}
 \item{horizontal}{orientation, horizontal or vertical}
-\item{fill}{}
-\item{colour}{}
+\item{strip.gp}{}
+\item{text.gp}{}
 }
 
 \details{}

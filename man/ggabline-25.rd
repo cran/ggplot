@@ -27,7 +27,7 @@ Other options:
 \item \code{slope}:slope(s) of line, set to Inf
 \item \code{colour}:line colour
 \item \code{size}:line thickness
-\item \code{line_tyep}:line type
+\item \code{linetype}:line type
 \item \code{range}: x (or y if slope infinite) range to draw the line.  This is sometimes necessary because ggplot isn't smart enough to calculate the entire range of the data
 }}
 

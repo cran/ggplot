@@ -1,5 +1,3 @@
-
-
 # Scale: colour (continuous)
 # Scale colour along a continuous path
 # 
@@ -15,7 +13,7 @@
 # @keyword internal 
 scale_cont_colour <- function(inputs, name="", variable="colour", to=list()) {
 	type <- paste(inputs[1:3], collapse="")
-	x <- list(inputs=inputs, name=name, variable=variable, to=to, type=type)
+	x <- list(inputs=inputs, name=name, variable=variable, to=to, type=type, visible=TRUE)
 	class(x) <- c("scale_cont_colour", "scale")
 	x
 }

@@ -4,6 +4,8 @@
 # This scale function allows you complete control over the 
 # scale.
 # 
+# Supply labels and breaks to produce a legend.
+# 
 # @keyword hplot
 # @arguments plot object to add scale to
 # @arguments variable to scale
@@ -25,7 +27,10 @@ scale_manual <- function(name="", variable="x", breaks=NULL, labels=labels, grob
 	)
 }
 "update<-.manual" <- function(x, value) x
-map_aesthetic.manual <- function(scale, data, ...) data[,input(scale), drop=FALSE]
+map_aesthetic.manual <- function(scale, data, ...) {
+	if (length(intersect(names(data), input(scale))) < length(input(scale))) return(data.frame())
+	data[,input(scale), drop=FALSE]
+}
 breaks.manual <- function(scale, ...) scale$breaks
 labels.manual <- function(object, ...) scale$labels
 

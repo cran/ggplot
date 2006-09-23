@@ -121,7 +121,7 @@ ggfluctuation <- function(table, type="size", floor=0, ceiling=max(table$freq, n
 #X ggmissing(mmissing)
 #X ggmissing(mmissing, order=FALSE, missing.only = FALSE)
 #X pscontinuous(ggmissing(mmissing, avoid="dodge"), "y", transform=trans_sqrt, range=c(0, NA))
-#X pscontinuous(ggmissing(mmissing), "y", transform=trans_log10, range=c(0, NA))
+#X pscontinuous(ggmissing(mmissing), "y", transform=trans_log10, range=c(1, NA))
 ggmissing <- function(data, avoid="stack", order=TRUE, missing.only = TRUE) {
 	missings <- mapply(function(var, name) cbind(as.data.frame(table(missing=factor(is.na(var), levels=c(TRUE, FALSE), labels=c("yes", "no")))), variable=name), 
 		data, names(data), SIMPLIFY=FALSE
@@ -181,8 +181,8 @@ ggorder <- function(data, scale="rank") {
 # Experimental template
 # 
 # @keyword internal  
-ggdist <- function(data, facets = . ~ .) {
-	cat <- sapply(data, is.factor)
+ggdist <- function(data, vars=names(data), facets = . ~ .) {
+	cat <- sapply(data[vars], is.factor)
 	facets <- deparse(substitute(facets))
 	
 	grid.newpage()
@@ -191,12 +191,12 @@ ggdist <- function(data, facets = . ~ .) {
 	mapply(function(name, cat, i) {
 		p <- ggplot(data)
 		p <- setfacets(p, facets)
-		p$defaults <- list(x=as.name(name), y=1)#uneval(substitute(list(x=name)))
+		p$defaults <- list(x=as.name(name), y=1)
 		p <- if (cat) ggbar(p, avoid="stack") else gghistogram(p)
 		pushViewport(viewport(layout.pos.col=i))
 		grid.draw(ggplot_plot(p, pretty=FALSE))
 		popViewport()
-	}, names(data), cat, 1:ncol(data))
+	}, names(data[vars]), cat, 1:ncol(data[vars]))
 	invisible()
 	
 }

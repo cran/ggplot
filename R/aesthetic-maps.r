@@ -4,19 +4,20 @@
 # Chop provides a convenient interface to the main methods of
 # converting a continuous variable into a categorical variable.
 #
-# @argument continuous variable
+# @argument continuous variable to chop into pieces
 # @argument number of bins to chop into
 # @argument method to use: quantiles (approximately equal numbers), cut (equal lengths) or pretty
 # @argument mid point for diverging factors
 # @keyword manip
-chop <- function(x, n=5, method="quantiles", midpoint=0) {
+chop <- function(x, n=5, method="quantiles", midpoint=0, digits=2) {
 	methods <- c("quantiles","cut", "pretty")
 	method <- methods[charmatch(method, methods)]
 	if (is.na(method)) stop(paste("Method must be one of:", paste(methods, collapse=", ")))
 	
 	breaks <- chop.breaks(x, n, method, midpoint)
+	labels <- formatC(breaks, digits=2, width=0)
 	
-	fac <- ordered(cut(x, breaks, labels=FALSE, include.lowest=TRUE) - attr(breaks,"midpoint.level"))
+	fac <- ordered(cut(x, breaks, labels=FALSE, include.lowest=TRUE) - attr(breaks,"midpoint.level"),labels=paste(labels[-length(breaks)], labels[-1], sep="-"))
 	attr(fac, "breaks") <- breaks
 	
 	if (attr(breaks,"midpoint.level") != 0) {
@@ -276,11 +277,11 @@ map_colour_brewer <- function(x, palette=1){
 map_color_brewer <- map_colour_brewer
 
 
-map_colour <- function(x, h=c(0,270), l=60, c=90, alpha=1) {
+map_colour <- function(x, h=c(0,360), l=60, c=90, alpha=1) {
 	x <- chop_auto(x)
 	n <- length(levels(x))
 	
-	pal <- hcl(seq(h[1], h[2], length = n), c=c, l=l, alpha=alpha)
+	pal <- grDevices::hcl(seq(h[1], h[2], length = n+1), c=c, l=l, alpha=alpha)[-(n+1)]
 	pal
 	#names(pal) <- 
 	#pal[levels(x)]

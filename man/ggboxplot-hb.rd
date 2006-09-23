@@ -19,6 +19,7 @@ Add box and whiskers
 \itemize{
 \item \code{x}:x position (required)
 \item \code{y}:y position (required)
+\item \code{weight}: observation weights
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
@@ -30,13 +31,18 @@ the plot.  These functions start with \code{ps}, eg.
 Other options:
 
 \itemize{
-\item \code{breaks}:how to break up the x axis
+\item \code{breaks}:how to break up the x axis (only used if not already a factor)
+\item \code{orientation}: whether boxplots should be horizontal or vertical.
+If missing will automatically decide based on which variable is a factor.
 \item other arguments passed \code{\link{boxplot}}
 }}
 \seealso{\code{\link{ggquantile}} for a continuous analogue of the boxplot}
 \examples{p <- ggplot(mtcars, aesthetics=list(y=mpg, x=factor(cyl)))
+p2 <- ggplot(mtcars, aesthetics=list(x=mpg, y=factor(cyl)))
 ggpoint(p)
 ggboxplot(p)
+ggboxplot(p2)
 ggboxplot(p, fill="pink", colour="green")
-ggpoint(ggboxplot(p))}
+ggpoint(ggboxplot(p))
+ggboxplot(p)}
 \keyword{hplot}

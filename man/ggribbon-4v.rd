@@ -18,7 +18,8 @@ Add a ribbon to the plot
 
 \itemize{
 \item \code{x}:x position (required)
-\item \code{y}:y position (required)
+\item \code{upper}: position of upper edge of ribbon  (required)
+\item \code{lower}: position of lower edge of ribbon (required)
 \item \code{id}:identifier variable used to break up into multiple paths
 \item \code{colour}:line colour (see \code{\link{sccolour}})
 }
@@ -41,6 +42,7 @@ data.frame(rating=round(df$rating[1]), year = as.numeric(names(nums)), number=as
 }))
 p <- ggplot(mry, aesthetics = list(x=year, y=number, id=rating))
 ggribbon(p, aes=list(upper=number+5, lower=number-5), fill="white", colour=NA)
+ggribbon(p, aes=list(y=number, plus=5, minus=-5), fill="white", colour=NA)
 ggribbon(p, aes=list(upper=number*1.1, lower=number*0.9), fill="white", colour=NA)
 ggribbon(p, aes=list(upper=number+5, lower=number-5), fill="pink")
 ggribbon(p, aes=list(upper=number+5, lower=number-5, fill=rating), colour=NA)

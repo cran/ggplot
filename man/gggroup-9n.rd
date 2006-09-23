@@ -45,6 +45,8 @@ Other options:
 
 \examples{p <- ggplot(mtcars, aesthetics=list(y=wt, x=qsec, id=cyl, colour=cyl))
 gggroup(p)
-gggroup(ggpoint(p), grob=grob_smooth, se=FALSE, span=1)
-gggroup(ggpoint(p), aes=list(id=cyl, size=cyl), grob=grob_smooth, span=1)}
+gggroup(p, grob="density")
+gggroup(p, grob="histogram", aes=list(fill=cyl))
+gggroup(ggpoint(p), grob="smooth", se=FALSE, span=1)
+gggroup(ggpoint(p), aes=list(id=cyl, size=cyl), grob="smooth", span=1)}
 \keyword{hplot}

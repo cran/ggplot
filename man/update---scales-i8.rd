@@ -16,7 +16,7 @@ This function updates an entire set of scales with data.
 data formats it could recieve:
 
 * a single data frame (representing one panel from one grob function)
-* a matrix of data frames (all panels from a grob function))
+* a matrix of data frames (all panels from a grob function)
 * a list of matrix of data frames (all panels from all grob functions)}
 
 \examples{}

@@ -11,17 +11,19 @@ Create a new ggplot plot
 \usage{ggplot.default(data = NULL, formula = . ~ ., margins=FALSE, aesthetics=list(), ...)}
 \arguments{
 \item{data}{default data frame}
-\item{formula}{formula describing row and column layout, see \code{\link{reshape}} for more details}
+\item{formula}{formula describing row and column layout, see \code{\link[reshape]{reshape}} for more details}
 \item{margins}{a vector of names giving which margins to display, can include grand\_row and grand\_col or uss TRUE to display all margins}
 \item{aesthetics}{default list of aesthetic mappings (these can be colour, size, shape, line type -- see individual grob functions for more details)}
 \item{...}{}
 }
 
 \details{This function creates the basic ggplot object which you can then
-furnish with graphical objets.  Here you will set
+furnish with graphical objects.  Here you will set
 up the default data frame, default aesthetics and the formula that
-will determine how the panels are broken apart.  See \code{\link{reshape}}
+will determine how the panels are broken apart.  See \code{\link[reshape]{reshape}}
 for more details on specifying the facetting formula and margin arguments.
+Note that ggplot creates a plot object without a "plot": you need to
+grobs (points, lines, bars, etc.) to create something that you can see.
 
 To get started, read the introductory vignette: \code{vignette("introduction", "ggplot")}
 
@@ -102,7 +104,7 @@ You can also use \code{summary} to give a quick description of a plot.
 
 If you want to change the background colour, how the panel strips are displayed,
 or any other default graphical option, see \code{\link{ggopt}}.}
-\seealso{\url{http://had.co.nz/ggplot}, \code{\link[reshape]{stamp}}, \code{\link[reshape]{reshape}}, \code{\link{ggopt}}}
+\seealso{\url{http://had.co.nz/ggplot}, \code{\link[reshape]{stamp}}, \code{\link[reshape]{reshape}}, \code{\link{ggopt}}, \code{vignette("introduction", "ggplot")}}
 \examples{p <- ggplot(tips)
 summary(p)
 ggpoint(p, aesthetic=list(y = tip, x=total_bill))

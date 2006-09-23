@@ -22,6 +22,7 @@ Aesthetic mappings that this grob function understands:
 \itemize{
 \item \code{x}:x position (required)
 \item \code{y}:y position (required)
+\item \code{weight}: observation weights
 }
 
 These can be specified in the plot defaults (see \code{\link{ggplot}}) or
