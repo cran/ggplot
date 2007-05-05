@@ -111,8 +111,10 @@ grob_histogram <- function(...) grob_bar(..., justification=c("right", "top"))
 # @arguments data source, if not specified the plot default will be used
 # @keyword hplot
 # @seealso \code{\link[quantreg]{rq}} for the code used to fit the quantile regression
+#X \dontrun{
 #X m <- ggplot(movies, aesthetics=list(y=length, x=rating))
 #X ggquantile(m)
+#X }
 ggquantile <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("quantile", plot, aesthetics, ..., data=data)
 }

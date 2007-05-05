@@ -38,6 +38,8 @@ Other options:
 \item \code{formula}:formula to use in quantile regression
 }}
 \seealso{\code{\link[quantreg]{rq}} for the code used to fit the quantile regression}
-\examples{m <- ggplot(movies, aesthetics=list(y=length, x=rating))
-ggquantile(m)}
+\examples{\dontrun{
+m <- ggplot(movies, aesthetics=list(y=length, x=rating))
+ggquantile(m)
+}}
 \keyword{hplot}
