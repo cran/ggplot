@@ -9,7 +9,6 @@
 \alias{grob_density}
 \alias{grob_group}
 \alias{grob_errorbar}
-\alias{grob_hexagon}
 \alias{grob_histogram}
 \alias{grob_hline}
 \alias{grob_jitter}

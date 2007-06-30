@@ -59,7 +59,6 @@ Complex grobs:
 \item \code{\link{ggcontour}}: contour lines
 \item \code{\link{ggdensity}}: 1d density plot (continuous analogue of histogram)
 \item \code{\link{gg2density}}: 2d density countours
-\item \code{\link{gghexagon}}: hexagon binned plot
 \item \code{\link{gghistogram}}: histogram
 \item \code{\link{ggquantile}}: quantile lines from a quantile regression
 \item \code{\link{ggsmooth}}: smooths from any model family

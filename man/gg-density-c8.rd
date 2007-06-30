@@ -34,7 +34,7 @@ Other options:
 \itemize{
 \item passed to \code{\link{ggcontour}}, see it for details
 }}
-\seealso{\code{\link{ggcontour}}, \code{\link{gghexagon}} for another way of dealing with over plotting}
+\seealso{\code{\link{ggcontour}} for another way of dealing with over plotting}
 \examples{m <- ggpoint(ggplot(movies, aesthetics=list(y=length, x=rating)))
 dens <- MASS::kde2d(movies$rating, movies$length)
 densdf <- data.frame(expand.grid(rating = dens$x, length = dens$y), z=as.vector(dens$z))

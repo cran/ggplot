@@ -82,9 +82,9 @@ ggaxis_ticks <- function(at, position) {
 	vp <- axis_vp_path(position, "ticks")
 	switch(position,
 		top =    ,
-		bottom = segmentsGrob(unit(at, "native"), unit(0, "npc"), unit(at, "native"), unit(1, "npc"), vp=vp, name="axis-ticks"),
+		bottom = segmentsGrob(unit(at, "native"), unit(0.1, "npc"), unit(at, "native"), unit(1, "npc"), vp=vp, name="axis-ticks"),
 		left =   ,
-		right =  segmentsGrob(unit(0, "npc"), unit(at, "native"), unit(1, "npc"), unit(at, "native"), vp=vp, name="axis-ticks")
+		right =  segmentsGrob(unit(0.1, "npc"), unit(at, "native"), unit(1, "npc"), unit(at, "native"), vp=vp, name="axis-ticks"),
 	)	
 }
 
@@ -98,12 +98,13 @@ ggaxis_ticks <- function(at, position) {
 # @keyword internal
 ggaxis_labels <- function(at, labels, position) {
 	vp <- axis_vp_path(position, "labels")
-	
+	gp <- gpar(cex = 0.95)
+
 	switch(position,
-		top =    textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels"),
-		bottom = textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels"),
-		left =   textGrob(labels, unit(1, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels"),
-		right =  textGrob(labels, unit(1, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels")
+		top =    textGrob(labels, unit(at, "native"), unit(0.7, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels", gp=gp),
+		bottom = textGrob(labels, unit(at, "native"), unit(0.7, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels", gp=gp),
+		left =   textGrob(labels, unit(0.9, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels", gp=gp),
+		right =  textGrob(labels, unit(0.9, "npc"), unit(at, "native"), just = c("right","centre"), rot = 0, check.overlap = TRUE, vp=vp, name="axis-labels", gp=gp),
 	)	
 }
 
@@ -120,7 +121,7 @@ ggaxis_vp <- function(position, labels, scale=c(0,1)) {
 	tick_size <- unit(0.4, "lines")
 	label_size <- switch(position, 
 		top = ,
-		bottom = max(unit(rep(2,length(labels))*1.4, "strheight", as.list(labels))),
+		bottom = max(unit(rep(1.1,length(labels))*1.4, "strheight", as.list(labels))),
 		left = ,
 		right = max(unit(rep(1.1,length(labels))*1.4, "strwidth", as.list(labels)))
 	)
@@ -130,7 +131,7 @@ ggaxis_vp <- function(position, labels, scale=c(0,1)) {
 		top =    grid.layout(nrow=2, ncol=1, heights=unit.c(label_size, tick_size), widths=unit(1,"npc")),
 		bottom = grid.layout(nrow=2, ncol=1, heights=unit.c(tick_size, label_size), widths=unit(1,"npc")),
 		left =   grid.layout(nrow=1, ncol=2, widths=unit.c(label_size, tick_size), heights=unit(1,"npc")),
-		right =  grid.layout(nrow=1, ncol=2, widths=unit.c(tick_size, label_size), heights=unit(1,"npc"))
+		right =  grid.layout(nrow=1, ncol=2, widths=unit.c(tick_size, label_size), heights=unit(1,"npc")),
 	)
 
 	vp_top <- switch(position,

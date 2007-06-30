@@ -112,8 +112,7 @@ grob_histogram <- function(...) grob_bar(..., justification=c("right", "top"))
 # @keyword hplot
 # @seealso \code{\link[quantreg]{rq}} for the code used to fit the quantile regression
 #X m <- ggplot(movies, aesthetics=list(y=length, x=rating))
-#X ggquantile(gghexagon(m))
-#X ggquantile(gghexagon(m), colour="green")
+#X ggquantile(m)
 ggquantile <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
 	gg_add("quantile", plot, aesthetics, ..., data=data)
 }
@@ -450,7 +449,7 @@ grob_density <- function(aesthetics, ...) {
 # @arguments other options, see details for more information
 # @arguments data source, if not specified the plot default will be used
 # @keyword hplot
-# @seealso \code{\link{ggcontour}}, \code{\link{gghexagon}} for another way of dealing with over plotting
+# @seealso \code{\link{ggcontour}} for another way of dealing with over plotting
 #X m <- ggpoint(ggplot(movies, aesthetics=list(y=length, x=rating)))
 #X dens <- MASS::kde2d(movies$rating, movies$length)
 #X densdf <- data.frame(expand.grid(rating = dens$x, length = dens$y), z=as.vector(dens$z))
@@ -537,61 +536,4 @@ grob_group <- function(aesthetics, grob = "point", separate=TRUE, ...) {
 	} else {
 		grobf(aesthetics, ...)
 	}
-}
-
-
-# Grob function: hexagons
-# Create hexagon binning of data points as created by Dan Carr.
-# 
-# This grob is useful for scatterplots with a lot of overplotting.  It bins the
-# region into hexagons, counts the number of points in each hexagonal bin and
-# then plots them.
-#
-# Aesthetic mappings that this grob function understands:
-#
-# \itemize{
-#   \item \code{x}:x position (required)
-#   \item \code{y}:y position (required)
-#   \item \code{weight}: observation weights
-# }
-# 
-# These can be specified in the plot defaults (see \code{\link{ggplot}}) or
-# in the \code{aesthetics} argument.  If you want to modify the position 
-# of the points or any axis options, you will need to add a position scale to
-# the plot.  These functions start with \code{ps}, eg. 
-# \code{\link{pscontinuous}} or \code{\link{pscategorical}}
-# 
-# Other options:
-# 
-# \itemize{
-#   \item \code{xbins}:number of bins to use
-#   \item \code{...}:other arguments passed to \code{\link[hexbin]{grid.hexagons}}
-# }
-# 
-# @keyword hplot 
-# @arguments the plot object to modify
-# @arguments named list of aesthetic mappings, see details for more information
-# @arguments other options, see details for more information
-# @arguments data source, if not specified the plot default will be used
-# @seealso \code{\link[hexbin]{grid.hexagon}}, \code{\link[hexbin]{grob_2density}} for another way of dealing with overplotting
-#X m <- ggplot(movies, aesthetics=list(y=length, x=rating))
-#X gghexagon(m)
-#X gghexagon(m, xbins=50)
-#X gghexagon(m, style="lattice")
-#X gghexagon(m, aes=list(weight=votes))
-gghexagon <- function(plot = .PLOT, aesthetics=list(), ..., data=NULL) {
-	gg_add("hexagon", plot, aesthetics, ..., data=data)
-}
-grob_hexagon <- function(aesthetics, xbins=30, ...) {
-	if (!require("hexbin", quietly=TRUE)) stop("You need to install the hexbin package !")
-	
-	if (!is.null(aesthetics$weight)) {
-		hexes <- hexbin(aesthetics$x, aesthetics$y, xbins=xbins, ID=TRUE)
-		cell <- hexes@cID
-		hexes@count <- as.vector(tapply(aesthetics$weight, cell, sum))
-	} else {
-		hexes <- hexbin(aesthetics$x, aesthetics$y, xbins=xbins)		
-	}
-
-	grid.grabExpr(grid.hexagons(hexes, ...))
 }

@@ -43,7 +43,6 @@
 # 	\item \code{\link{ggcontour}}: contour lines
 # 	\item \code{\link{ggdensity}}: 1d density plot (continuous analogue of histogram)
 # 	\item \code{\link{gg2density}}: 2d density countours
-# 	\item \code{\link{gghexagon}}: hexagon binned plot
 # 	\item \code{\link{gghistogram}}: histogram
 # 	\item \code{\link{ggquantile}}: quantile lines from a quantile regression
 # 	\item \code{\link{ggsmooth}}: smooths from any model family
@@ -202,13 +201,7 @@ setdata <- function(p = .PLOT, data) {
 # @arguments other arguments passed on to \code{\link{ggplot_plot}}
 # @keyword hplot
 # @keyword internal 
-print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, save=ggopt()$save, ...) {
-	# if (save) {
-	# 	require("decumar")
-	# 	img(grid.draw(ggplot_plot(x, ...)), hash=digest(x))
-	# 	return()
-	# }
-	
+print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, save=ggopt()$save, ...) {	
 	if (newpage) grid.newpage()
 	if (is.null(vp)) {
 		grid.draw(ggplot_plot(x, ...)) 

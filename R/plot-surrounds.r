@@ -25,17 +25,19 @@ prettyplot <- function(plot, plotgrob) {
 	if (is.null(legend)) position <- "none"
 	
 	gp <- gpar(fill=plot$background.fill, col=plot$background.colour)
+	
+	if (plot$title == "") plot$title <- NULL
 	title <- textGrob(plot$title, gp=gpar(cex=1.3, col=plot$background.colour), just=c("centre", "centre"), name="title")
 	xlabel <- textGrob(plot$xlabel, just=c("centre", "centre"), gp=gp, name="xlabel")
-	ylabel <- textGrob(plot$ylabel, rot=90, just=c("centre", "centre"), gp=gp, name="ylabel")
+	ylabel <- textGrob(plot$ylabel, rot=90, just=c("centre", "top"), gp=gp, name="ylabel")
 	
 	widths <- switch(position, 
-		right =  unit.c(unit(3, "grobwidth", ylabel), unit(1, "null"), unit(1, "grobwidth", legend)),
+		right =  unit.c(unit(1, "strheight", "ylabel"), unit(1, "null"), unit(1, "grobwidth", legend)),
 		left =   unit.c(unit(1, "grobwidth", legend), unit(2, "grobwidth", ylabel), unit(1, "null")), 
 		top =    ,
 		bottom = ,
 		manual = ,
-		none =   unit.c(unit(3, "grobwidth", ylabel), unit(1, "null"))
+		none =   unit.c(unit(2, "grobwidth", ylabel), unit(1, "null"))
 	)
 	heights <- switch(position,
 		top =    unit.c(unit(2, "grobheight", title), unit(1, "grobheight", legend), unit(1, "null"), unit(3, "grobheight", xlabel)),
@@ -43,7 +45,7 @@ prettyplot <- function(plot, plotgrob) {
 		right =  ,
 		left =   ,
 		manual = ,
-		none =   unit.c(unit(2, "grobheight", title), unit(1, "null"), unit(3, "grobheight", xlabel))
+		none =   unit.c(unit(2, "grobheight", title), unit(1, "null"), unit(2, "grobheight", xlabel))
 	)
 
 	layout <- grid.layout(length(heights), length(widths), widths=widths, heights=heights)
@@ -80,6 +82,15 @@ prettyplot <- function(plot, plotgrob) {
 		lf <- placeGrob(lf, ylabel,  row=2,   col=1)
 		lf <- placeGrob(lf, xlabel,  row=3,   col=2)
 		lf <- placeGrob(lf, title,  row=1,   col=2)
+		if (position == "manual") {
+			
+			leg <- gTree(
+				children=gList(legend), 
+				vp=viewport(x=coords[1], y=coords[2], just=plot$legend.justification, width=grobWidth(legend), height=grobHeight(legend))
+			)
+			lf <- placeGrob(lf, leg, row=2, col=2)
+		}
+		
 	}
 	
 	lf

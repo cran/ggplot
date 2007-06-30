@@ -39,6 +39,5 @@ Other options:
 }}
 \seealso{\code{\link[quantreg]{rq}} for the code used to fit the quantile regression}
 \examples{m <- ggplot(movies, aesthetics=list(y=length, x=rating))
-ggquantile(gghexagon(m))
-ggquantile(gghexagon(m), colour="green")}
+ggquantile(m)}
 \keyword{hplot}
